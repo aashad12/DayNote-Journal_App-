@@ -1,4 +1,4 @@
-﻿namespace DayNote.Components.Services
+﻿namespace DayNote.Services
 {
     public class ThemeService
     {
@@ -23,7 +23,7 @@
 
         public void Toggle()
         {
-            CurrentTheme = (CurrentTheme == "dark") ? "light" : "dark";
+            CurrentTheme = CurrentTheme == "dark" ? "light" : "dark";
 
             try
             {

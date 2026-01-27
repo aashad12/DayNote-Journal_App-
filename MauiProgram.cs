@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using DayNote.Components.Services;
+using DayNote.Services;
 namespace DayNote
 {
     public static class MauiProgram

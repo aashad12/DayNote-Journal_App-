@@ -1,6 +1,6 @@
-﻿using DayNote.Components.Models;
+﻿using DayNote.Models;
 
-namespace DayNote.Components.Services
+namespace DayNote.Services
 {
     public partial class FeatureService
     {
@@ -74,7 +74,7 @@ namespace DayNote.Components.Services
 
             foreach (var kv in tagEntryCounts)
             {
-                var percent = (kv.Value / (double)entries.Count) * 100;
+                var percent = kv.Value / (double)entries.Count * 100;
                 result[kv.Key] = percent;
             }
 

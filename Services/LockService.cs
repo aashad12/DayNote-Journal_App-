@@ -1,4 +1,4 @@
-﻿namespace DayNote.Components.Services;
+﻿namespace DayNote.Services;
 
 public class LockService
 {

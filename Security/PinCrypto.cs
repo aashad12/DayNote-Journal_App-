@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace DayNote.Components.Security;
+namespace DayNote.Security;
 
 public static class PinCrypto
 {

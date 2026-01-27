@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SQLite;
-using DayNote.Components.Models;
+using DayNote.Models;
 
-namespace DayNote.Components.Services
+namespace DayNote.Services
 {
     public class JournalService
     {

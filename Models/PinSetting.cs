@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DayNote.Components.Models
+namespace DayNote.Models
 {
     [Table("PinSetting")]
     public class PinSetting

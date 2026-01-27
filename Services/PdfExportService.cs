@@ -1,9 +1,9 @@
 ﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using DayNote.Components.Models;
+using DayNote.Models;
 
-namespace DayNote.Components.Services;
+namespace DayNote.Services;
 
 public class PdfExportService
 {

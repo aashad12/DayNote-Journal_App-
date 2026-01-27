@@ -1,7 +1,7 @@
 ﻿using SQLite;
-using DayNote.Components.Models;
+using DayNote.Models;
 
-namespace DayNote.Components.Services
+namespace DayNote.Services
 {
     public class JournalDatabase
     {

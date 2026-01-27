@@ -1,7 +1,7 @@
-﻿using DayNote.Components.Models;
+﻿using DayNote.Models;
 using SQLite;
 
-namespace DayNote.Components.Services
+namespace DayNote.Services
 {
     public class EntryService
     {

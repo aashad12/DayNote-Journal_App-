@@ -1,8 +1,8 @@
-﻿using DayNote.Components.Models;
-using DayNote.Components.Security;
+﻿using DayNote.Models;
+using DayNote.Security;
 using SQLite;
 
-namespace DayNote.Components.Services
+namespace DayNote.Services
 {
     public class PinRepository
     {
