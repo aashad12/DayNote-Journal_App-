@@ -3,6 +3,7 @@
 @using DayNote.Services
 @using Microsoft.AspNetCore.Components.Web
 @inject JournalService JournalService
+@inject IJSRuntime JS
 
 <div class="entries-page">
 
@@ -42,7 +43,7 @@
             }
         </select>
 
-        <!-- ✅ NEW: Tag filter -->
+        <!-- Tag filter -->
         <select class="filter-select" @onchange="OnTagChanged">
             <option value="">All tags</option>
             @foreach (var tag in AllTags)
@@ -149,9 +150,11 @@
                                 {
                                     <a class="edit-btn" href="/journal?id=@entry.Id">Edit</a>
 
-                                    <button class="delete-btn" @onclick="async () => await DeleteEntry(entry)">
+                                    <button class="delete-btn" @onclick="() => AskDelete(entry)">
                                         Delete
                                     </button>
+
+
                                 }
                                 else
                                 {
@@ -176,6 +179,21 @@
 
     </div>
 </div>
+
+@if (ShowDeleteDialog)
+{
+    <div class="dialog-backdrop">
+        <div class="dialog-box">
+            <h3>Confirm Message</h3>
+            <p>Are you sure you want to delete this journal entry?</p>
+
+            <div class="dialog-actions">
+                <button class="btn-cancel" @onclick="CloseDialog">No</button>
+                <button class="btn-confirm" @onclick="ConfirmDelete">Yes</button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
 
@@ -260,7 +278,7 @@
                 string.Equals(e.SecondaryMood2, m, StringComparison.OrdinalIgnoreCase));
         }
 
-        // ✅ NEW: Filter by tag
+        // Filter by tag
         if (!string.IsNullOrWhiteSpace(SelectedTag))
         {
             var t = SelectedTag.Trim();
@@ -337,6 +355,33 @@
     {
         if (!IsFirstPage) Page--;
     }
+
+    private bool ShowDeleteDialog = false;
+    private JournalEntry? EntryToDelete;
+
+    private void AskDelete(JournalEntry entry)
+    {
+        EntryToDelete = entry;
+        ShowDeleteDialog = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (EntryToDelete != null)
+        {
+            await DeleteEntry(EntryToDelete);
+        }
+
+        CloseDialog();
+    }
+
+    private void CloseDialog()
+    {
+        ShowDeleteDialog = false;
+        EntryToDelete = null;
+    }
+
+
 
     private async Task DeleteEntry(JournalEntry entry)
     {

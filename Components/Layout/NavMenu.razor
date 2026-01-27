@@ -56,7 +56,8 @@
                     <span class="label">Change / Set PIN</span>
                 </NavLink>
 
-                <button type="button" class="nav-link sub-link danger" @onclick="Logout">
+                <button type="button" class="nav-link sub-link danger" @onclick="AskLogout">
+
                     <span class="icon">🚪</span>
                     <span class="label">Logout</span>
                 </button>
@@ -65,14 +66,42 @@
 
     </nav>
 </div>
+@if (ShowLogoutDialog)
+{
+    <div class="dialog-backdrop" @onclick="CancelLogout">
+        <div class="dialog-box" @onclick:stopPropagation="true">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to log out?</p>
+
+            <div class="dialog-actions">
+                <button class="btn-cancel" @onclick="CancelLogout">No</button>
+                <button class="btn-confirm" @onclick="ConfirmLogout">Yes</button>
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
     private bool settingsOpen = false;
     private void ToggleSettings() => settingsOpen = !settingsOpen;
 
-    private void Logout()
+    private bool ShowLogoutDialog = false;
+
+    private void AskLogout()
     {
+        ShowLogoutDialog = true;
+    }
+
+    private void CancelLogout()
+    {
+        ShowLogoutDialog = false;
+    }
+
+    private void ConfirmLogout()
+    {
+        ShowLogoutDialog = false;
         LockService.Lock();
-        Nav.NavigateTo("/lock", replace: true); 
+        Nav.NavigateTo("/lock", replace: true);
     }
 }
