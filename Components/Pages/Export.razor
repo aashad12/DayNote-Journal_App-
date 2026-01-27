@@ -4,67 +4,222 @@
 @inject JournalService JournalService
 @inject PdfExportService PdfExportService
 
-<h3 class="export-title">Export Journals (PDF)</h3>
+<div class="export-shell">
+    <div class="export-header">
+        <h1 class="export-title">Export Journals</h1>
+        <p class="export-subtitle">Choose a date range and export your entries as a PDF.</p>
+    </div>
 
-<div class="export-page">
     <div class="export-card">
 
-        <div class="export-grid">
-            <div class="field">
-                <label>From:</label>
-                <InputDate @bind-Value="FromDate" />
+        <div class="export-section">
+            <h3 class="section-title">Date Range</h3>
+
+            <div class="quick-ranges">
+                <button class="chip" type="button" @onclick="() => SetRangeDays(7)">Last 7 days</button>
+                <button class="chip" type="button" @onclick="() => SetRangeDays(30)">Last 30 days</button>
+                <button class="chip" type="button" @onclick="SetThisMonth">This month</button>
+                <button class="chip" type="button" @onclick="SetThisYear">This year</button>
             </div>
 
-            <div class="field">
-                <label>To:</label>
-                <InputDate @bind-Value="ToDate" />
+            <div class="export-grid">
+                <div class="field">
+                    <label class="field-label">From</label>
+                    <InputDate class="date-input" @bind-Value="FromDate" />
+                </div>
+
+                <div class="field">
+                    <label class="field-label">To</label>
+                    <InputDate class="date-input" @bind-Value="ToDate" />
+                </div>
             </div>
+
+            @if (!string.IsNullOrWhiteSpace(ValidationError))
+            {
+                <div class="alert alert-error">
+                    <span class="alert-icon">⚠️</span>
+                    <span>@ValidationError</span>
+                </div>
+            }
         </div>
 
-        <div class="actions">
-            <button class="export-btn" @onclick="ExportPdfAsync">Export PDF</button>
+        <div class="export-section">
+            <h3 class="section-title">Export</h3>
+
+            <div class="actions">
+                <button class="export-btn"
+                        @onclick="ExportPdfAsync"
+                        disabled="@IsExportDisabled">
+                    @if (IsExporting)
+                    {
+                        <span class="spinner" aria-hidden="true"></span>
+                        <span>Exporting…</span>
+                    }
+                    else
+                    {
+                        <span>Export PDF</span>
+                    }
+                </button>
+
+                <button class="secondary-btn" type="button" @onclick="ResetToDefault" disabled="@IsExporting">
+                    Reset
+                </button>
+            </div>
+
+            @if (EntryCount is not null)
+            {
+                <div class="summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Entries found</span>
+                        <span class="summary-value">@EntryCount</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(SavedPath))
+                    {
+                        <div class="summary-row">
+                            <span class="summary-label">Saved to</span>
+                            <span class="summary-path" title="@SavedPath">@SavedPath</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Status))
+            {
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    <span>@Status</span>
+                </div>
+            }
         </div>
 
-        @if (!string.IsNullOrWhiteSpace(Status))
-        {
-            <p class="status">@Status</p>
-        }
+        <div class="hint">
+            <span class="hint-icon">🔒</span>
+            <span>Your PDF is saved locally on your device.</span>
+        </div>
     </div>
 </div>
-
 
 @code {
     private DateOnly FromDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
     private DateOnly ToDate = DateOnly.FromDateTime(DateTime.Today);
+
     private string? Status;
+    private string? ValidationError;
+
+    private bool IsExporting = false;
+    private int? EntryCount;
+    private string? SavedPath;
+
+    private bool IsExportDisabled => IsExporting || !IsRangeValid();
+
+    private bool IsRangeValid()
+    {
+        var from = FromDate.ToDateTime(TimeOnly.MinValue);
+        var to = ToDate.ToDateTime(TimeOnly.MaxValue);
+        return to >= from;
+    }
+
+    private void ResetToDefault()
+    {
+        Status = null;
+        ValidationError = null;
+        EntryCount = null;
+        SavedPath = null;
+
+        FromDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
+        ToDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private void SetRangeDays(int days)
+    {
+        Status = null;
+        ValidationError = null;
+        EntryCount = null;
+        SavedPath = null;
+
+        ToDate = DateOnly.FromDateTime(DateTime.Today);
+        FromDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-days));
+    }
+
+    private void SetThisMonth()
+    {
+        Status = null;
+        ValidationError = null;
+        EntryCount = null;
+        SavedPath = null;
+
+        var now = DateTime.Today;
+        var first = new DateTime(now.Year, now.Month, 1);
+        var last = first.AddMonths(1).AddDays(-1);
+
+        FromDate = DateOnly.FromDateTime(first);
+        ToDate = DateOnly.FromDateTime(last);
+    }
+
+    private void SetThisYear()
+    {
+        Status = null;
+        ValidationError = null;
+        EntryCount = null;
+        SavedPath = null;
+
+        var now = DateTime.Today;
+        FromDate = DateOnly.FromDateTime(new DateTime(now.Year, 1, 1));
+        ToDate = DateOnly.FromDateTime(new DateTime(now.Year, 12, 31));
+    }
 
     private async Task ExportPdfAsync()
     {
         Status = null;
+        ValidationError = null;
+        EntryCount = null;
+        SavedPath = null;
 
         var from = FromDate.ToDateTime(TimeOnly.MinValue);
         var to = ToDate.ToDateTime(TimeOnly.MaxValue);
 
         if (to < from)
         {
-            Status = "To date must be after From date.";
+            ValidationError = "To date must be after From date.";
             return;
         }
 
-        var entries = await JournalService.GetByDateRangeAsync(from, to);
-
-        var pdfBytes = PdfExportService.BuildPdf(entries, from, to);
-
-        var fileName = $"Journal_{from:yyyyMMdd}_to_{to:yyyyMMdd}.pdf";
-        var path = Path.Combine(FileSystem.AppDataDirectory, fileName);
-
-        await File.WriteAllBytesAsync(path, pdfBytes);
-
-        Status = "PDF exported ✅";
-
-        await Launcher.Default.OpenAsync(new OpenFileRequest
+        try
         {
-            File = new ReadOnlyFile(path)
-        });
+            IsExporting = true;
+
+            var entries = await JournalService.GetByDateRangeAsync(from, to);
+            EntryCount = entries?.Count ?? 0;
+
+            if (EntryCount == 0)
+            {
+                ValidationError = "No entries found in this date range.";
+                return;
+            }
+
+            var pdfBytes = PdfExportService.BuildPdf(entries, from, to);
+
+            var fileName = $"Journal_{from:yyyyMMdd}_to_{to:yyyyMMdd}.pdf";
+            var path = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            await File.WriteAllBytesAsync(path, pdfBytes);
+
+            SavedPath = path;
+            Status = "PDF exported successfully.";
+
+            await Launcher.Default.OpenAsync(new OpenFileRequest
+            {
+                File = new ReadOnlyFile(path)
+            });
+        }
+        catch (Exception ex)
+        {
+            ValidationError = $"Export failed: {ex.Message}";
+        }
+        finally
+        {
+            IsExporting = false;
+        }
     }
 }
