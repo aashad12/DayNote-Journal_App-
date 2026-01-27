@@ -1,0 +1,75 @@
+﻿@page "/set-pin"
+@using DayNote.Components.Services
+@inject LockService LockService
+@inject NavigationManager Nav
+
+<div class="pin-page">
+    <h2>🔑 Set / Change PIN</h2>
+
+    <input type="password"
+           class="pin-input"
+           placeholder="New PIN (min 4)"
+           @bind="NewPin" />
+
+    <input type="password"
+           class="pin-input"
+           placeholder="Confirm PIN"
+           @bind="ConfirmPin" />
+
+    <button class="btn-success" @onclick="SavePin">
+        Save PIN
+    </button>
+
+    @if (LockService.PinEnabled)
+    {
+        <button class="btn-danger" @onclick="DisablePin">
+            Disable PIN
+        </button>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Message))
+    {
+        <div class="msg">@Message</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Error))
+    {
+        <div class="error">@Error</div>
+    }
+</div>
+
+@code {
+    private string NewPin = "";
+    private string ConfirmPin = "";
+    private string? Message;
+    private string? Error;
+
+    private async Task SavePin()
+    {
+        Message = null;
+        Error = null;
+
+        if (string.IsNullOrWhiteSpace(NewPin) || NewPin.Length < 4)
+        {
+            Error = "PIN must be at least 4 characters.";
+            return;
+        }
+
+        if (NewPin != ConfirmPin)
+        {
+            Error = "PINs do not match.";
+            return;
+        }
+
+        await LockService.SetOrChangePinAsync(NewPin);
+        Message = "PIN saved. App is locked now.";
+
+        Nav.NavigateTo("/lock", true);
+    }
+
+    private async Task DisablePin()
+    {
+        await LockService.DisablePinAsync();
+        Nav.NavigateTo("/", true);
+    }
+}

@@ -1,0 +1,154 @@
+﻿/* Page wrapper */
+.export-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 22px 16px 28px;
+}
+
+/* Title */
+.export-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: black;
+   
+    display: inline-block;
+    
+}
+
+/* Card */
+.export-card {
+    border-radius: 18px;
+    padding: 18px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    backdrop-filter: blur(8px);
+}
+
+/* Form grid */
+.export-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+@media (min-width: 520px) {
+    .export-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+}
+
+/* Field */
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+/* InputDate renders an <input> */
+.field input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    outline: none;
+}
+
+    /* Focus state */
+    .field input:focus {
+        border-color: #4f46e5;
+    }
+
+
+/* Button row */
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Primary button */
+.export-btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    box-shadow: 0 12px 26px rgba(79, 70, 229, 0.22);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+    .export-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 30px rgba(79, 70, 229, 0.28);
+        filter: brightness(1.02);
+    }
+
+    .export-btn:active {
+        transform: translateY(0px);
+    }
+
+/* Status message */
+.status {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(16, 185, 129, 0.10);
+    color: #065f46;
+}
+
+    .status.error {
+        background: rgba(239, 68, 68, 0.10);
+        color: #7f1d1d;
+        border-color: rgba(239, 68, 68, 0.22);
+    }
+
+ /* DARK THEME */
+.theme-dark .export-card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    box-shadow: none;
+}
+
+.theme-dark .field label {
+    color: #e5e7eb;
+}
+
+.theme-dark input {
+    background: #1f2937;
+    border: 1px solid #374151;
+    color: #e5e7eb;
+}
+
+    .theme-dark input:focus {
+        border-color: #60a5fa;
+        outline: none;
+    }
+
+/* Status messages */
+.theme-dark .status {
+    background: #064e3b;
+    color: #a7f3d0;
+    border: 1px solid #065f46;
+}
+
+    .theme-dark .status.error {
+        background: #7f1d1d;
+        color: #fecaca;
+        border: 1px solid #991b1b;
+    }

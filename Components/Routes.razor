@@ -1,0 +1,59 @@
+﻿@using DayNote.Components.Services
+@inject LockService LockService
+@inject NavigationManager Nav
+@implements IDisposable
+
+<ErrorBoundary>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+                <p>Page not found.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</ErrorBoundary>
+
+@code {
+    private bool _initialized;
+    private bool _redirected;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LockService.OnChanged += StateHasChanged;
+
+        if (!_initialized)
+        {
+            _initialized = true;
+            await LockService.InitializeAsync();
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender || _redirected)
+            return;
+
+        var path = Nav.ToBaseRelativePath(Nav.Uri)?.ToLowerInvariant() ?? "";
+
+        if (LockService.PinEnabled && LockService.IsLocked && !path.StartsWith("lock"))
+        {
+            _redirected = true;
+            Nav.NavigateTo("/lock", replace: true);
+            return;
+        }
+
+        if (!LockService.IsLocked && path.StartsWith("lock"))
+        {
+            _redirected = true;
+            Nav.NavigateTo("/", replace: true);
+        }
+    }
+
+    public void Dispose()
+    {
+        LockService.OnChanged -= StateHasChanged;
+    }
+}

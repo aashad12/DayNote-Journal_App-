@@ -1,0 +1,224 @@
+﻿/* Make the NavMenu fill the sidebar */
+:host {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+
+.top-row {
+    width: 100%;
+    height: 96px; /* fixed header height */
+    background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+    color: white;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+}
+
+/* Brand area same width always */
+.brand-area {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+}
+
+.brand-logo {
+    font-size: 34px;
+    line-height: 1;
+}
+
+.brand-title {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.brand-subtitle {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+/* Hamburger (mobile) */
+.hamburger {
+    display: none;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+    .hamburger:hover {
+        background: rgba(255,255,255,0.12);
+    }
+
+.navbar-toggler {
+    display: none;
+}
+
+/* =========================
+   MENU AREA (fills remaining height)
+========================= */
+.nav-scrollable {
+    width: 100%;
+    height: calc(100% - 96px); /* rest after header */
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+}
+
+/* =========================
+   NAV LIST
+========================= */
+.nav-list {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+/* =========================
+   NAV ITEM LOOK + HOVER
+========================= */
+.nav-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #374151;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+    .nav-link:hover {
+        background: #f3f4f6;
+        border-left-color: #3b82f6;
+        color: #111827;
+    }
+
+    .nav-link.active {
+        background: #e0ecff;
+        border-left-color: #2563eb;
+        color: #1d4ed8;
+        font-weight: 700;
+    }
+
+/* icons same spacing */
+.icon {
+    width: 26px;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* =========================
+   SETTINGS (make it SAME as menu items)
+========================= */
+.nav-link.settings {
+    margin-top: 6px;
+    justify-content: space-between;
+}
+
+/* Settings dropdown container */
+.sub {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0;
+}
+
+/* Sub links look same but indented */
+.sub-link {
+    padding-left: 52px !important;
+    font-size: 15px;
+}
+
+    /* Danger hover */
+    .sub-link.danger {
+        color: #dc2626;
+    }
+
+        .sub-link.danger:hover {
+            background: #fee2e2;
+            border-left-color: #dc2626;
+            color: #b91c1c;
+        }
+
+/* =========================
+   MOBILE SIDEBAR SLIDE
+========================= */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+
+    .nav-scrollable {
+        position: fixed;
+        top: 96px;
+        left: 0;
+        height: calc(100vh - 96px);
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 1000;
+    }
+
+    .navbar-toggler:checked ~ .nav-scrollable {
+        transform: translateX(0);
+    }
+}
+
+/* DARK THEME */
+
+.theme-dark .top-row {
+    background: #0f172a;
+}
+
+.theme-dark .nav-scrollable {
+    background: #0f172a;
+    border-right: 1px solid rgba(255,255,255,0.10);
+}
+
+.theme-dark .nav-link {
+    color: #e5e7eb;
+}
+
+    .theme-dark .nav-link:hover {
+        background: #111827;
+        border-left-color: #60a5fa;
+        color: #f8fafc;
+    }
+
+    .theme-dark .nav-link.active {
+        background: #1e293b;
+        border-left-color: #93c5fd;
+        color: #93c5fd;
+    }
+
+.theme-dark .sub-link {
+    color: #e5e7eb;
+}
+
+    .theme-dark .sub-link.danger {
+        color: #fca5a5;
+    }
+
+        .theme-dark .sub-link.danger:hover {
+            background: #7f1d1d;
+            border-left-color: #fca5a5;
+            color: #fecaca;
+        }

@@ -1,0 +1,490 @@
+﻿/* ===== BASE STYLES ===== */
+.new-entry-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font-family: "Segoe UI", sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 28px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.form-card {
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-bottom: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.required {
+    color: #ef4444;
+    font-weight: 700;
+    margin-left: 0.25rem;
+}
+
+/* ===== FORM INPUTS ===== */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: white;
+    color: #333;
+}
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+textarea {
+    resize: vertical;
+}
+
+/* ===== QUILL EDITOR ===== */
+.quill-box {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+    .quill-box:hover {
+        border-color: #aaa;
+    }
+
+    .quill-box:focus-within {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        outline: none;
+    }
+
+    /* Quill Toolbar */
+    .quill-box .ql-toolbar {
+        border: none;
+        border-bottom: 1px solid #eee;
+        background: #f8f9fa;
+        border-radius: 6px 6px 0 0;
+        padding: 8px 12px;
+        transition: all 0.3s ease;
+    }
+
+    /* Quill Container */
+    .quill-box .ql-container {
+        border: none;
+        border-radius: 0 0 6px 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+    }
+
+    /* Quill Editor */
+    .quill-box .ql-editor {
+        min-height: 150px;
+        padding: 1rem;
+        line-height: 1.6;
+        color: #333;
+        transition: color 0.3s ease;
+    }
+
+        .quill-box .ql-editor.ql-blank::before {
+            color: #999;
+            font-style: italic;
+            left: 1rem;
+            transition: color 0.3s ease;
+        }
+
+/* ===== FORM MESSAGES ===== */
+.form-message {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease;
+    text-align: center;
+    margin-top: 12px;
+}
+
+    /* Success/Info Message */
+    .form-message:not([class*="error"]):not([class*="warning"]) {
+        color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+        border-left: 3px solid #007bff;
+    }
+
+    /* Error Message */
+    .form-message.error {
+        color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.1);
+        border-left: 3px solid #dc3545;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== TAGS ===== */
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.quick-tag {
+    background: #eef2ff;
+    color: #4338ca;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .quick-tag:hover {
+        background: #4338ca;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+.tag-input {
+    margin-top: 6px;
+}
+
+.tag-msg {
+    color: #16a34a;
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+/* ===== SAVE BUTTON ===== */
+.save-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+}
+
+    .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(79, 70, 229, 0.45);
+    }
+
+    .save-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+
+/* ===== DARK MODE ===== */
+/* Container */
+.dark-mode {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+    .dark-mode .page-title {
+        color: #f1f5f9;
+    }
+
+    /* Form Card */
+    .dark-mode .form-card {
+        background: #1e293b;
+        border: 1px solid #475569;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Labels */
+    .dark-mode label {
+        color: #f1f5f9;
+    }
+
+    /* Inputs */
+    .dark-mode input[type="text"],
+    .dark-mode input[type="date"],
+    .dark-mode input[type="time"],
+    .dark-mode select {
+        background: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .dark-mode input:focus,
+        .dark-mode select:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+    .dark-mode input::placeholder {
+        color: #64748b;
+    }
+
+    /* Quill Editor Dark */
+    .dark-mode .quill-box {
+        background: #334155;
+        border-color: #475569;
+    }
+
+        .dark-mode .quill-box .ql-toolbar {
+            background: #475569;
+            border-bottom-color: #64748b;
+        }
+
+        .dark-mode .quill-box .ql-container {
+            background: #334155;
+        }
+
+        .dark-mode .quill-box .ql-editor {
+            color: #e2e8f0;
+        }
+
+            .dark-mode .quill-box .ql-editor.ql-blank::before {
+                color: #64748b;
+            }
+
+    /* Form Messages Dark */
+    .dark-mode .form-message {
+        color: #fca5a5;
+        background-color: rgba(239, 68, 68, 0.2);
+        border-left: 3px solid #ef4444;
+    }
+
+        .dark-mode .form-message:not(.error) {
+            color: #a5b4fc;
+            background-color: rgba(99, 102, 241, 0.2);
+            border-left: 3px solid #6366f1;
+        }
+
+    /* Quick Tags Dark */
+    .dark-mode .quick-tags {
+        background: #334155;
+        border: 1px solid #475569;
+    }
+
+    .dark-mode .quick-tag {
+        background: #064e3b;
+        color: #a7f3d0;
+        border: 1px solid #047857;
+    }
+
+        .dark-mode .quick-tag:hover {
+            background: #047857;
+            color: white;
+        }
+
+    .dark-mode .tag-msg {
+        color: #34d399;
+    }
+
+    /* Save Button Dark */
+    .dark-mode .save-btn {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
+
+        .dark-mode .save-btn:hover {
+            box-shadow: 0 10px 26px rgba(99, 102, 241, 0.45);
+        }
+
+    /* Select Options Dark */
+    .dark-mode select {
+        background-color: #334155;
+        color: #e2e8f0;
+    }
+
+        .dark-mode select option {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+    .dark-mode optgroup {
+        color: #cbd5e1;
+    }
+
+        .dark-mode optgroup[label="Positive"] {
+            color: #34d399;
+        }
+
+        .dark-mode optgroup[label="Neutral"] {
+            color: #fbbf24;
+        }
+
+        .dark-mode optgroup[label="Negative"] {
+            color: #f87171;
+        }
+
+/* ===== MOOD CATEGORY PREVIEW ===== */
+.mood-category-preview {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
+    color: #6366f1;
+    font-size: 0.875rem;
+    border-left: 3px solid #6366f1;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .mood-category-preview {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border-left: 3px solid #a5b4fc;
+}
+
+/* ===== PREVIEW BOX ===== */
+.preview-box {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    animation: slideIn 0.4s ease;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .preview-box {
+    background: #334155;
+    border-color: #475569;
+}
+
+.preview-box h4 {
+    margin: 0 0 1rem 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.dark-mode .preview-box h4 {
+    color: #f1f5f9;
+}
+
+.preview-content {
+    color: #475569;
+    line-height: 1.6;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    max-height: 200px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .preview-content {
+    background: #475569;
+    border-color: #64748b;
+    color: #e2e8f0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .quill-box .ql-toolbar {
+        padding: 6px 8px;
+    }
+
+    .quill-box .ql-editor {
+        min-height: 120px;
+        padding: 0.75rem;
+    }
+
+    .form-card {
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .new-entry-container {
+        margin: 20px auto;
+        padding: 0 12px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .quick-tags {
+        gap: 6px;
+    }
+
+    .quick-tag {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}

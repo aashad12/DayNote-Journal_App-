@@ -1,0 +1,382 @@
+﻿@page "/entries"
+@using DayNote.Components.Models
+@using DayNote.Components.Services
+@using Microsoft.AspNetCore.Components.Web
+@inject JournalService JournalService
+
+<div class="entries-page">
+
+    <div class="page-header">
+        <h1>My Journal</h1>
+        <p class="page-subtitle">Your personal collection of thoughts and reflections</p>
+
+        <div class="page-stats">
+            <span>@FilteredEntries.Count entries</span>
+            <span>•</span>
+            <span>@MoodCount different moods</span>
+            <span>•</span>
+            <span>@TagCount different tags</span>
+        </div>
+    </div>
+
+    <div class="filters-bar">
+
+        <div class="search-box">
+            <input class="search-input"
+                   placeholder="Search by title or content..."
+                   @bind="SearchText"
+                   @onkeydown="OnSearchKeyDown" />
+
+            <button type="button" class="search-btn"
+                    @onclick="ApplySearch"
+                    title="Search">
+                🔍
+            </button>
+        </div>
+
+        <select class="filter-select" @onchange="OnMoodChanged">
+            <option value="">All moods</option>
+            @foreach (var mood in AllMoods)
+            {
+                <option value="@mood">@mood</option>
+            }
+        </select>
+
+        <!-- ✅ NEW: Tag filter -->
+        <select class="filter-select" @onchange="OnTagChanged">
+            <option value="">All tags</option>
+            @foreach (var tag in AllTags)
+            {
+                <option value="@tag">@tag</option>
+            }
+        </select>
+
+        <button class="clear-btn" @onclick="ClearFilters">Clear</button>
+    </div>
+
+    <div class="entries-container">
+
+        @if (AllEntries.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3>No journal entries yet</h3>
+                <p>Create your first entry to see it here.</p>
+                <a href="/journal" class="add-button">+ Create Entry</a>
+            </div>
+        }
+        else if (FilteredEntries.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">🔎</div>
+                <h3>No results found</h3>
+                <p>Try a different keyword, mood, or tag — or clear filters.</p>
+                <button class="clear-btn" @onclick="ClearFilters">Clear Filters</button>
+            </div>
+        }
+        else
+        {
+            <div class="entries-list">
+                @foreach (var entry in PagedEntries)
+                {
+                    var isToday = entry.EntryDate.Date == DateTime.Today;
+                    var moodCategory = GetMoodCategory(entry.PrimaryMood);
+
+                    <div class="entry-card @(isToday ? "today-entry" : "")">
+
+                        <div class="entry-date">
+                            <div class="date-day">@entry.EntryDate.Day</div>
+                            <div class="date-month">@entry.EntryDate.ToString("MMM")</div>
+                            <div class="date-year">@entry.EntryDate.Year</div>
+                        </div>
+
+                        <div class="entry-content">
+                            <div class="entry-header">
+                                <div class="title-row">
+                                    <h3>@(string.IsNullOrWhiteSpace(entry.Title) ? "Untitled Entry" : entry.Title)</h3>
+
+                                    <span class="entry-datetime">
+                                        @entry.EntryDate.ToString("MMM dd, yyyy • hh:mm tt")
+                                    </span>
+                                </div>
+
+                                <!-- ✅ NEW: Created/Updated timestamps -->
+                                <div class="entry-meta">
+                                    <span class="meta-pill">Created: @entry.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")</span>
+                                    <span class="meta-pill">Updated: @entry.UpdatedAt.ToString("MMM dd, yyyy • hh:mm tt")</span>
+
+                                    <!-- ✅ NEW: Mood Category badge -->
+                                    <span class="meta-pill mood-category">@moodCategory</span>
+
+                                    @if (isToday)
+                                    {
+                                        <span class="meta-pill today-pill">Today</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mood-section">
+                                <span class="mood-tag primary">@entry.PrimaryMood</span>
+
+                                @if (!string.IsNullOrWhiteSpace(entry.SecondaryMood1))
+                                {
+                                    <span class="mood-tag secondary">@entry.SecondaryMood1</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(entry.SecondaryMood2))
+                                {
+                                    <span class="mood-tag secondary">@entry.SecondaryMood2</span>
+                                }
+                            </div>
+
+                            <!-- ✅ NEW: Tags display -->
+                            @if (!string.IsNullOrWhiteSpace(entry.Tags))
+                            {
+                                <div class="tag-section">
+                                    @foreach (var t in SplitTags(entry.Tags))
+                                    {
+                                        <span class="tag-pill">@t</span>
+                                    }
+                                </div>
+                            }
+
+                            <div class="entry-text">
+                                @((MarkupString)entry.Content)
+                            </div>
+
+                            <div class="entry-actions">
+                                <!-- ✅ OPTIONAL strict rule: only allow edit/delete for today's entry -->
+                                @if (!OnlyTodayCRUD || isToday)
+                                {
+                                    <a class="edit-btn" href="/journal?id=@entry.Id">Edit</a>
+
+                                    <button class="delete-btn" @onclick="async () => await DeleteEntry(entry)">
+                                        Delete
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="locked-note">Only today's entry can be edited/deleted.</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" @onclick="PrevPage" disabled="@IsFirstPage">Prev</button>
+
+                <span class="page-info">
+                    Page @Page / @TotalPages
+                </span>
+
+                <button class="page-btn" @onclick="NextPage" disabled="@IsLastPage">Next</button>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+
+    // ✅ Optional: strict rubric mode (true = only today edit/delete)
+    private bool OnlyTodayCRUD = false;
+
+    private List<JournalEntry> AllEntries = new();
+
+    private string SearchText = "";
+    private string AppliedSearchText = "";
+    private string SelectedMood = "";
+    private string SelectedTag = "";
+
+    private List<JournalEntry> FilteredEntries = new();
+
+    // Moods dropdown
+    private List<string> AllMoods = new();
+    private int MoodCount = 0;
+
+    // ✅ NEW: Tags dropdown
+    private List<string> AllTags = new();
+    private int TagCount = 0;
+
+    // Pagination
+    private int Page = 1;
+    private int PageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadFromDb();
+        ApplyFilters();
+    }
+
+    private async Task ReloadFromDb()
+    {
+        AllEntries = await JournalService.GetAllAsync();
+
+        // Mood dropdown list
+        AllMoods = AllEntries
+            .SelectMany(e => new[] { e.PrimaryMood, e.SecondaryMood1, e.SecondaryMood2 })
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Select(m => m!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(m => m)
+            .ToList();
+
+        MoodCount = AllMoods.Count;
+
+        // ✅ NEW: Tag dropdown list (from existing entries)
+        AllTags = AllEntries
+            .Where(e => !string.IsNullOrWhiteSpace(e.Tags))
+            .SelectMany(e => SplitTags(e.Tags))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(t => t)
+            .ToList();
+
+        TagCount = AllTags.Count;
+    }
+
+    private void ApplyFilters()
+    {
+        IEnumerable<JournalEntry> q = AllEntries;
+
+        // Search by title/content
+        if (!string.IsNullOrWhiteSpace(AppliedSearchText))
+        {
+            var s = AppliedSearchText.Trim();
+
+            q = q.Where(e =>
+                (e.Title ?? "").Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                (e.Content ?? "").Contains(s, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filter by mood (primary or secondary)
+        if (!string.IsNullOrWhiteSpace(SelectedMood))
+        {
+            var m = SelectedMood.Trim();
+
+            q = q.Where(e =>
+                string.Equals(e.PrimaryMood, m, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(e.SecondaryMood1, m, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(e.SecondaryMood2, m, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // ✅ NEW: Filter by tag
+        if (!string.IsNullOrWhiteSpace(SelectedTag))
+        {
+            var t = SelectedTag.Trim();
+
+            q = q.Where(e =>
+                !string.IsNullOrWhiteSpace(e.Tags) &&
+                SplitTags(e.Tags).Any(x => string.Equals(x, t, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        FilteredEntries = q
+            .OrderByDescending(e => e.EntryDate)
+            .ToList();
+
+        if (Page < 1) Page = 1;
+        if (TotalPages > 0 && Page > TotalPages) Page = TotalPages;
+    }
+
+    private void ApplySearch()
+    {
+        AppliedSearchText = (SearchText ?? "").Trim();
+        Page = 1;
+        ApplyFilters();
+    }
+
+    private Task OnSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ApplySearch();
+        }
+        return Task.CompletedTask;
+    }
+
+    private Task OnMoodChanged(ChangeEventArgs e)
+    {
+        SelectedMood = e.Value?.ToString() ?? "";
+        Page = 1;
+        ApplyFilters();
+        return Task.CompletedTask;
+    }
+
+    // ✅ NEW: Tag changed
+    private Task OnTagChanged(ChangeEventArgs e)
+    {
+        SelectedTag = e.Value?.ToString() ?? "";
+        Page = 1;
+        ApplyFilters();
+        return Task.CompletedTask;
+    }
+
+    private void ClearFilters()
+    {
+        SearchText = "";
+        AppliedSearchText = "";
+        SelectedMood = "";
+        SelectedTag = "";
+        Page = 1;
+        ApplyFilters();
+    }
+
+    private int TotalPages => (int)Math.Ceiling(FilteredEntries.Count / (double)PageSize);
+    private bool IsFirstPage => Page <= 1;
+    private bool IsLastPage => Page >= TotalPages;
+
+    private List<JournalEntry> PagedEntries =>
+        FilteredEntries.Skip((Page - 1) * PageSize).Take(PageSize).ToList();
+
+    private void NextPage()
+    {
+        if (!IsLastPage) Page++;
+    }
+
+    private void PrevPage()
+    {
+        if (!IsFirstPage) Page--;
+    }
+
+    private async Task DeleteEntry(JournalEntry entry)
+    {
+        await JournalService.DeleteAsync(entry);
+        await ReloadFromDb();
+        ApplyFilters();
+
+        if (Page > 1 && PagedEntries.Count == 0)
+        {
+            Page--;
+            ApplyFilters();
+        }
+    }
+
+    // ✅ NEW helpers
+
+    private IEnumerable<string> SplitTags(string? tags)
+    {
+        if (string.IsNullOrWhiteSpace(tags)) yield break;
+
+        foreach (var raw in tags.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var t = raw.Trim();
+            if (!string.IsNullOrWhiteSpace(t))
+                yield return t;
+        }
+    }
+
+    private string GetMoodCategory(string? primaryMood)
+    {
+        if (string.IsNullOrWhiteSpace(primaryMood)) return "Neutral";
+
+        var positive = new[] { "Happy", "Excited", "Relaxed", "Grateful", "Confident" };
+        var neutral = new[] { "Calm", "Thoughtful", "Curious", "Nostalgic", "Bored" };
+        var negative = new[] { "Sad", "Angry", "Stressed", "Lonely", "Anxious" };
+
+        if (positive.Contains(primaryMood, StringComparer.OrdinalIgnoreCase)) return "Positive";
+        if (neutral.Contains(primaryMood, StringComparer.OrdinalIgnoreCase)) return "Neutral";
+        if (negative.Contains(primaryMood, StringComparer.OrdinalIgnoreCase)) return "Negative";
+
+        return "Neutral";
+    }
+}

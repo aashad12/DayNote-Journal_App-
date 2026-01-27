@@ -1,0 +1,78 @@
+﻿@using DayNote.Components.Services
+@inject LockService LockService
+@inject NavigationManager Nav
+
+<div class="top-row">
+    <div class="brand-area">
+        <div class="brand">
+            <div class="brand-logo">📝</div>
+            <div class="brand-text">
+                <div class="brand-title">DayNote</div>
+                <div class="brand-subtitle">Your private space</div>
+            </div>
+        </div>
+
+        <label class="hamburger" for="navToggle" title="Menu">☰</label>
+    </div>
+</div>
+
+<input id="navToggle" type="checkbox" class="navbar-toggler" />
+
+<div class="nav-scrollable">
+    <nav class="nav-list">
+
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <span class="icon">🏠</span>
+            <span class="label">Dashboard</span>
+        </NavLink>
+
+        <NavLink class="nav-link" href="entries">
+            <span class="icon">🗒️</span>
+            <span class="label">Entries</span>
+        </NavLink>
+
+        <NavLink class="nav-link" href="calendar">
+            <span class="icon">📅</span>
+            <span class="label">Calendar</span>
+        </NavLink>
+        <NavLink class="nav-link" href="export">
+            <span class="icon">📄</span>
+            <span class="label">Export PDF</span>
+        </NavLink>
+
+        <button type="button" class="nav-link settings" @onclick="ToggleSettings">
+            <span class="left">
+                <span class="icon">⚙️</span>
+                <span class="label">Settings</span>
+            </span>
+            <span class="chev">@((settingsOpen) ? "▴" : "▾")</span>
+        </button>
+
+        @if (settingsOpen)
+        {
+            <div class="sub">
+                <NavLink class="nav-link sub-link" href="set-pin">
+                    <span class="icon">🔑</span>
+                    <span class="label">Change / Set PIN</span>
+                </NavLink>
+
+                <button type="button" class="nav-link sub-link danger" @onclick="Logout">
+                    <span class="icon">🚪</span>
+                    <span class="label">Logout</span>
+                </button>
+            </div>
+        }
+
+    </nav>
+</div>
+
+@code {
+    private bool settingsOpen = false;
+    private void ToggleSettings() => settingsOpen = !settingsOpen;
+
+    private void Logout()
+    {
+        LockService.Lock();
+        Nav.NavigateTo("/lock", replace: true); 
+    }
+}

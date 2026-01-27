@@ -1,0 +1,35 @@
+﻿@inherits LayoutComponentBase
+@using DayNote.Components.Layout
+@using DayNote.Components.Services
+@inject LockService LockService
+@inject ThemeService ThemeService
+@implements IDisposable
+
+<div class="app-root @(ThemeService.CurrentTheme == "dark" ? "theme-dark" : "theme-light")">
+    <div class="page">
+
+        @if (!LockService.IsLocked)
+        {
+            <aside class="sidebar">
+                <NavMenu />
+            </aside>
+        }
+
+        <main class="main-content">
+            @Body
+        </main>
+
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LockService.OnChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LockService.OnChanged -= StateHasChanged;
+    }
+}

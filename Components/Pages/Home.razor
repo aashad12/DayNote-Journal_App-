@@ -1,0 +1,465 @@
+﻿@page "/"
+@using DayNote.Components.Models
+@using DayNote.Components.Services
+
+@inject JournalService JournalService
+@inject FeatureService FeatureService
+@inject ThemeService ThemeService
+
+<div class="dashboard @ThemeService.CurrentTheme">
+
+    <header class="header">
+        <div class="header-row">
+            <div>
+                <h1>Journal Dashboard</h1>
+                <p class="subtitle">Your personal reflection space</p>
+            </div>
+
+            <button class="theme-btn" @onclick="ToggleTheme" title="Toggle theme">
+                @(ThemeService.CurrentTheme == "dark" ? "☀️" : "🌙")
+            </button>
+        </div>
+    </header>
+
+    <!-- Date Range Filter -->
+    <div class="date-filter">
+        <div class="filter-group">
+            <label>From</label>
+            <input type="date" @bind="FromDate" />
+        </div>
+
+        <div class="filter-group">
+            <label>To</label>
+            <input type="date" @bind="ToDate" />
+        </div>
+
+        <button class="filter-btn" @onclick="ApplyDateFilter">Apply</button>
+        <button class="filter-btn secondary" @onclick="ResetFilter">Reset</button>
+
+        @if (!string.IsNullOrWhiteSpace(FilterLabel))
+        {
+            <div class="filter-label">@FilterLabel</div>
+        }
+    </div>
+
+    <!-- Today status (global: based on all entries) -->
+    @if (HasEntryForToday)
+    {
+        <div class="today-status success">
+            ✅ You've already journaled today. Great job!
+        </div>
+    }
+    else
+    {
+        <div class="today-status reminder">
+            📅 You haven't journaled today.
+            <a href="/journal" class="add-button">+ Add Entry</a>
+        </div>
+    }
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-content">
+                <h3>Total Entries</h3>
+                <p class="stat-number">@TotalEntries</p>
+                <small class="stat-small">(@(string.IsNullOrWhiteSpace(FilterLabel) ? "All time" : "Filtered"))</small>
+            </div>
+        </div>
+
+        <div class="stat-card highlight">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-content">
+                <h3>Current Streak</h3>
+                <p class="stat-number">@CurrentStreak <span class="stat-unit">days</span></p>
+                <small class="stat-small">(Global)</small>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-content">
+                <h3>Longest Streak</h3>
+                <p class="stat-number">@LongestStreak <span class="stat-unit">days</span></p>
+                <small class="stat-small">(Global)</small>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">@MostFrequentMoodEmoji</div>
+            <div class="stat-content">
+                <h3>Most Frequent Mood</h3>
+                <p class="stat-label">@MostFrequentMood</p>
+                <small class="stat-small">(@(string.IsNullOrWhiteSpace(FilterLabel) ? "All time" : "Filtered"))</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Grid -->
+    <div class="analytics-grid">
+
+        <!-- Mood Distribution -->
+        <div class="card">
+            <div class="card-head">
+                <h2>😊 Mood Distribution</h2>
+            </div>
+
+            @if (MoodCategories.Count == 0 || TotalEntries == 0)
+            {
+                <div class="empty-box">No mood data yet</div>
+            }
+            else
+            {
+                <div class="pie-chart-container">
+                    <div class="pie-chart" style="@GetPieChartStyle()">
+                        <div class="pie-center"></div>
+                    </div>
+
+                    <div class="pie-legend">
+                        @{
+                            var colors = new[] { "#10b981", "#f59e0b", "#ef4444" };
+                            int colorIndex = 0;
+                        }
+
+                        @foreach (var mood in MoodCategories)
+                        {
+                            double percentage = TotalEntries > 0
+                                ? (mood.Value / (double)TotalEntries) * 100
+                                : 0;
+
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: @colors[colorIndex];"></span>
+                                <span class="legend-text">@mood.Key</span>
+                                <span class="legend-value">@percentage.ToString("F1")%</span>
+                            </div>
+
+                            colorIndex++;
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Most Used Tags -->
+        <div class="card">
+            <div class="card-head">
+                <h2>🏷️ Most Used Tags</h2>
+            </div>
+
+            @if (TagCounts.Count == 0)
+            {
+                <div class="empty-box">No tags used yet</div>
+            }
+            else
+            {
+                <div class="bar-chart">
+                    @{
+                        var topTags = TagCounts.OrderByDescending(x => x.Value).Take(8).ToList();
+                        var maxCount = topTags.Any() ? topTags.Max(x => x.Value) : 1;
+                    }
+
+                    @foreach (var tag in topTags)
+                    {
+                        double percentage = (tag.Value / (double)maxCount) * 100;
+
+                        <div class="bar-item">
+                            <span class="bar-label">@tag.Key</span>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: @(percentage)%"></div>
+                                <span class="bar-count">@tag.Value</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Tag Breakdown (%) -->
+        <div class="card">
+            <div class="card-head">
+                <h2>📊 Tag Breakdown</h2>
+            </div>
+
+            @if (TagBreakdown.Count == 0 || TotalEntries == 0)
+            {
+                <div class="empty-box">No tag breakdown data yet</div>
+            }
+            else
+            {
+                <div class="breakdown-list">
+                    @foreach (var tag in TagBreakdown.OrderByDescending(x => x.Value).Take(10))
+                    {
+                        <div class="breakdown-item">
+                            <div class="breakdown-header">
+                                <span class="breakdown-name">@tag.Key</span>
+                                <span class="breakdown-percent">@tag.Value.ToString("F1")%</span>
+                            </div>
+
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: @(tag.Value)%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Word Count Trend -->
+        <div class="card wide">
+            <div class="card-head">
+                <h2>📝 Word Count Trends</h2>
+                <span class="card-subtitle">Filtered Range</span>
+            </div>
+
+            @if (WordTrend.Count == 0)
+            {
+                <div class="empty-box">No word trend data yet</div>
+            }
+            else
+            {
+                <div class="line-chart">
+                    @{
+                        var maxWords = WordTrend.Max(x => x.WordCount);
+                        var avgWords = WordTrend.Average(x => x.WordCount);
+                    }
+
+                    <div class="chart-area">
+                        <div class="avg-line" style="bottom: @((avgWords / (maxWords == 0 ? 1 : maxWords)) * 100)%">
+                            <span class="avg-label">Avg: @avgWords.ToString("F0")</span>
+                        </div>
+
+                        @for (int i = 0; i < WordTrend.Count; i++)
+                        {
+                            var point = WordTrend[i];
+                            double height = maxWords > 0 ? (point.WordCount / (double)maxWords) * 100 : 0;
+                            double left = WordTrend.Count > 1 ? (i / (double)(WordTrend.Count - 1)) * 100 : 50;
+
+                            <div class="chart-bar" style="height: @(height)%; left: @(left)%">
+                                <div class="chart-tooltip">@point.WordCount words</div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="chart-labels">
+                        @foreach (var point in WordTrend)
+                        {
+                            <span class="chart-label">@DateTime.Parse(point.Day).ToString("MMM d")</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Missed Days -->
+        <div class="card">
+            <div class="card-head">
+                <h2>📅 Missed Days</h2>
+            </div>
+
+            <div class="missed-container">
+                <div class="missed-count">
+                    <span class="missed-number">@MissedDaysLast30</span>
+                    <span class="missed-label">days missed</span>
+                    <span class="missed-period">in last 30 days (Global)</span>
+                </div>
+
+                @if (MissedDaysList.Count > 0)
+                {
+                    <div class="missed-list">
+                        <div class="missed-title">Recent missed dates:</div>
+                        @foreach (var d in MissedDaysList.Take(8))
+                        {
+                            <span class="missed-pill">@d.ToString("MMM d")</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    // Date filter state
+    private DateTime? FromDate;
+    private DateTime? ToDate;
+    private string FilterLabel = "";
+
+    // Metrics
+    private int TotalEntries;
+    private int CurrentStreak;
+    private int LongestStreak;
+    private bool HasEntryForToday;
+
+    private string MostFrequentMood = "";
+    private string MostFrequentMoodEmoji = "😊";
+
+    private Dictionary<string, int> MoodDistribution = new();
+    private Dictionary<string, int> MoodCategories = new();
+    private Dictionary<string, int> TagCounts = new();
+
+    // Tag breakdown in percent (Tag -> %)
+    private Dictionary<string, double> TagBreakdown = new();
+
+    private List<WordTrendPoint> WordTrend = new();
+
+    // Missed days (global)
+    private int MissedDaysLast30;
+    private List<DateTime> MissedDaysList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Default: show last 30 days analytics (optional)
+        // If you want ALL TIME by default, comment these 2 lines:
+        FromDate = DateTime.Today.AddDays(-30);
+        ToDate = DateTime.Today;
+
+        await LoadDashboardAsync();
+    }
+
+    private void ToggleTheme() => ThemeService.Toggle();
+
+    private async Task ApplyDateFilter()
+    {
+        await LoadDashboardAsync();
+    }
+
+    private async Task ResetFilter()
+    {
+        FromDate = null;
+        ToDate = null;
+        await LoadDashboardAsync();
+    }
+
+    private async Task LoadDashboardAsync()
+    {
+        var allEntries = await JournalService.GetAllAsync();
+
+        // Global today check (not filtered)
+        var todayKey = DateTime.Today.ToString("yyyy-MM-dd");
+        HasEntryForToday = allEntries.Any(e => e.EntryDay == todayKey);
+
+        // Global streaks/missed days (correct behavior)
+        CurrentStreak = await FeatureService.CalculateCurrentStreakAsync();
+        LongestStreak = await FeatureService.CalculateLongestStreakAsync();
+        MissedDaysLast30 = await FeatureService.GetMissedDaysLast30Async();
+        MissedDaysList = await FeatureService.GetMissedDatesLast30Async();
+
+        // Filter entries for analytics
+        var entries = FilterEntriesByDate(allEntries, FromDate, ToDate);
+
+        TotalEntries = entries.Count;
+
+        FilterLabel = BuildFilterLabel(FromDate, ToDate);
+
+        // FILTERED analytics
+        MoodDistribution = FeatureService.CalculateMoodDistribution(entries);
+        TagCounts = FeatureService.CalculateTagCounts(entries);
+        TagBreakdown = FeatureService.CalculateTagBreakdownPercent(entries);
+        WordTrend = FeatureService.CalculateWordTrend(entries);
+
+        // Most frequent mood (filtered)
+        if (MoodDistribution.Count > 0)
+        {
+            var most = MoodDistribution.OrderByDescending(x => x.Value).First();
+            MostFrequentMood = most.Key;
+            MostFrequentMoodEmoji = GetMoodEmoji(most.Key);
+        }
+        else
+        {
+            MostFrequentMood = "—";
+            MostFrequentMoodEmoji = "😊";
+        }
+
+        CategorizeMoods();
+    }
+
+    private List<JournalEntry> FilterEntriesByDate(List<JournalEntry> all, DateTime? from, DateTime? to)
+    {
+        var filtered = all.AsEnumerable();
+
+        if (from.HasValue)
+            filtered = filtered.Where(e => DateTime.Parse(e.EntryDay) >= from.Value.Date);
+
+        if (to.HasValue)
+            filtered = filtered.Where(e => DateTime.Parse(e.EntryDay) <= to.Value.Date);
+
+        return filtered
+            .OrderBy(e => e.EntryDay)
+            .ToList();
+    }
+
+    private string BuildFilterLabel(DateTime? from, DateTime? to)
+    {
+        if (!from.HasValue && !to.HasValue) return "";
+
+        var f = from?.ToString("MMM d, yyyy") ?? "Start";
+        var t = to?.ToString("MMM d, yyyy") ?? "Today";
+        return $"Showing: {f} → {t}";
+    }
+
+    private void CategorizeMoods()
+    {
+        var positiveMoods = new[] { "Happy", "Excited", "Relaxed", "Grateful", "Confident" };
+        var neutralMoods = new[] { "Calm", "Thoughtful", "Curious", "Nostalgic", "Bored" };
+        var negativeMoods = new[] { "Sad", "Angry", "Stressed", "Lonely", "Anxious" };
+
+        int positive = 0, neutral = 0, negative = 0;
+
+        foreach (var mood in MoodDistribution)
+        {
+            if (positiveMoods.Contains(mood.Key, StringComparer.OrdinalIgnoreCase))
+                positive += mood.Value;
+            else if (neutralMoods.Contains(mood.Key, StringComparer.OrdinalIgnoreCase))
+                neutral += mood.Value;
+            else if (negativeMoods.Contains(mood.Key, StringComparer.OrdinalIgnoreCase))
+                negative += mood.Value;
+            else
+                neutral += mood.Value; // fallback
+        }
+
+        MoodCategories = new Dictionary<string, int>
+{
+            { "Positive", positive },
+            { "Neutral", neutral },
+            { "Negative", negative }
+        };
+    }
+
+    private string GetMoodEmoji(string mood)
+    {
+        return mood.ToLower() switch
+        {
+            "happy" => "😊",
+            "excited" => "🤩",
+            "relaxed" => "😌",
+            "grateful" => "🙏",
+            "confident" => "😎",
+
+            "calm" => "😌",
+            "thoughtful" => "🤔",
+            "curious" => "🧐",
+            "nostalgic" => "🥹",
+            "bored" => "😐",
+
+            "sad" => "😢",
+            "angry" => "😠",
+            "stressed" => "😫",
+            "lonely" => "😔",
+            "anxious" => "😰",
+            _ => "😊"
+        };
+    }
+
+    private string GetPieChartStyle()
+    {
+        if (TotalEntries == 0) return "";
+
+        double pos = (MoodCategories.GetValueOrDefault("Positive", 0) / (double)TotalEntries) * 100;
+        double neu = (MoodCategories.GetValueOrDefault("Neutral", 0) / (double)TotalEntries) * 100;
+        double neg = (MoodCategories.GetValueOrDefault("Negative", 0) / (double)TotalEntries) * 100;
+
+        return $"background: conic-gradient(#10b981 0% {pos}%, #f59e0b {pos}% {pos + neu}%, #ef4444 {pos + neu}% 100%);";
+    }
+}

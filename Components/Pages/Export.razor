@@ -1,0 +1,70 @@
+﻿@page "/export"
+@using DayNote.Components.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject JournalService JournalService
+@inject PdfExportService PdfExportService
+
+<h3 class="export-title">Export Journals (PDF)</h3>
+
+<div class="export-page">
+    <div class="export-card">
+
+        <div class="export-grid">
+            <div class="field">
+                <label>From:</label>
+                <InputDate @bind-Value="FromDate" />
+            </div>
+
+            <div class="field">
+                <label>To:</label>
+                <InputDate @bind-Value="ToDate" />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="export-btn" @onclick="ExportPdfAsync">Export PDF</button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Status))
+        {
+            <p class="status">@Status</p>
+        }
+    </div>
+</div>
+
+
+@code {
+    private DateOnly FromDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
+    private DateOnly ToDate = DateOnly.FromDateTime(DateTime.Today);
+    private string? Status;
+
+    private async Task ExportPdfAsync()
+    {
+        Status = null;
+
+        var from = FromDate.ToDateTime(TimeOnly.MinValue);
+        var to = ToDate.ToDateTime(TimeOnly.MaxValue);
+
+        if (to < from)
+        {
+            Status = "To date must be after From date.";
+            return;
+        }
+
+        var entries = await JournalService.GetByDateRangeAsync(from, to);
+
+        var pdfBytes = PdfExportService.BuildPdf(entries, from, to);
+
+        var fileName = $"Journal_{from:yyyyMMdd}_to_{to:yyyyMMdd}.pdf";
+        var path = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+        await File.WriteAllBytesAsync(path, pdfBytes);
+
+        Status = "PDF exported ✅";
+
+        await Launcher.Default.OpenAsync(new OpenFileRequest
+        {
+            File = new ReadOnlyFile(path)
+        });
+    }
+}

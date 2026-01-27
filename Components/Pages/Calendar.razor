@@ -1,0 +1,144 @@
+﻿@page "/calendar"
+@using DayNote.Components.Models
+@using DayNote.Components.Services
+@inject LockService LockService
+@inject JournalService JournalService
+@inject NavigationManager Nav
+
+<div class="calendar-page">
+    <h1>Calendar</h1>
+
+    <!-- Month Navigation -->
+    <div class="month-nav">
+        <button @onclick="PrevMonth">←</button>
+        <h2>@CurrentMonth.ToString("MMMM yyyy")</h2>
+        <button @onclick="NextMonth">→</button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar">
+
+        <div class="weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+
+        <div class="days-grid">
+            @foreach (var day in DaysInMonth)
+            {
+                var entries = GetDayEntries(day);
+                var isToday = day.Date == DateTime.Today;
+                var isCurrentMonth = day.Month == CurrentMonth.Month;
+
+                <div class="day @(isToday ? "today" : "") @(!isCurrentMonth ? "other-month" : "")"
+                     @onclick="() => ViewDay(day)">
+
+                    <span class="date">@day.Day</span>
+
+                    @if (entries.Any())
+                    {
+                        <div class="entry-indicator" title="@entries.Count entry/ies">
+                            ●
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Selected Day Info -->
+    @if (SelectedDay != DateTime.MinValue)
+    {
+        <div class="day-info">
+            <h3>@SelectedDay.ToString("MMMM dd, yyyy")</h3>
+
+            @{
+                var dayEntries = GetDayEntries(SelectedDay);
+            }
+
+            @if (dayEntries.Count == 0)
+            {
+                <p>No entries for this day.</p>
+                <a href="/journal?date=@SelectedDay.ToString("yyyy-MM-dd")" class="add-btn">
+                    Add Entry
+                </a>
+            }
+            else
+            {
+                <p><strong>@dayEntries.Count entries</strong></p>
+
+                <div class="entries-preview">
+                    @foreach (var entry in dayEntries)
+                    {
+                        <div class="entry-preview">
+                            <span class="mood">@entry.PrimaryMood</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+
+    private DateTime CurrentMonth = DateTime.Today;
+    private List<DateTime> DaysInMonth = new();
+    private DateTime SelectedDay = DateTime.MinValue;
+
+
+    private List<JournalEntry> AllEntries = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllEntries = await JournalService.GetAllAsync();
+        LoadCalendar();
+    }
+
+    private void LoadCalendar()
+    {
+        DaysInMonth.Clear();
+
+        var firstDay = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+        int startOffset = (int)firstDay.DayOfWeek;
+        var startDate = firstDay.AddDays(-startOffset);
+
+        for (int i = 0; i < 42; i++)
+        {
+            DaysInMonth.Add(startDate.AddDays(i));
+        }
+    }
+
+    private void PrevMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(-1);
+        LoadCalendar();
+        SelectedDay = DateTime.MinValue;
+    }
+
+    private void NextMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(1);
+        LoadCalendar();
+        SelectedDay = DateTime.MinValue;
+    }
+
+
+    private List<JournalEntry> GetDayEntries(DateTime date)
+    {
+        return AllEntries
+            .Where(e => e.EntryDate.Date == date.Date)
+            .ToList();
+    }
+
+    private void ViewDay(DateTime day)
+    {
+        SelectedDay = day;
+    }
+}

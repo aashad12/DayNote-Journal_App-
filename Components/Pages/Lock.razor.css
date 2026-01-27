@@ -1,0 +1,212 @@
+﻿/* LOCK PAGE – LIGHT */
+.lock-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    text-align: center;
+    position: relative;
+}
+
+    /* HEADER */
+    .lock-page h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+        .lock-page h2::before {
+            content: "🔒";
+            font-size: 2.5rem;
+        }
+
+    /* SUBTITLE */
+    .lock-page p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+        max-width: 400px;
+        line-height: 1.6;
+    }
+
+/* PIN INPUT */
+.pin-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.5rem;
+    letter-spacing: 8px;
+    text-align: center;
+    background: #ffffff;
+    border: 2px solid #dfe6e9;
+    border-radius: 16px;
+    color: #2c3e50;
+    outline: none;
+    margin-bottom: 2rem;
+    font-family: 'Courier New', monospace;
+    transition: all 0.25s ease;
+}
+
+    .pin-input::placeholder {
+        letter-spacing: normal;
+        color: #b2bec3;
+        font-size: 1rem;
+    }
+
+    .pin-input:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+    }
+
+/* BUTTON */
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.25s ease;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(52, 152, 219, 0.35);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+/* ERROR */
+.error {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #e74c3c;
+    margin-bottom: 1.5rem;
+    max-width: 320px;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%,100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* LINKS */
+.links a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+    .links a:hover {
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+/* ATTEMPTS */
+.attempts {
+    margin-top: 1rem;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* DARK THEME – .theme-dark */
+
+.theme-dark .lock-page {
+    background: linear-gradient(135deg, #020617, #0f172a);
+}
+
+    .theme-dark .lock-page h2 {
+        color: #e5e7eb;
+    }
+
+    .theme-dark .lock-page p {
+        color: #94a3b8;
+    }
+
+.theme-dark .pin-input {
+    background: #111827;
+    border-color: #334155;
+    color: #e5e7eb;
+}
+
+    .theme-dark .pin-input::placeholder {
+        color: #64748b;
+    }
+
+    .theme-dark .pin-input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+    }
+
+.theme-dark .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+    .theme-dark .btn-primary:hover:not(:disabled) {
+        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.45);
+    }
+
+.theme-dark .error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border-left-color: #ef4444;
+}
+
+.theme-dark .links a {
+    color: #60a5fa;
+}
+
+    .theme-dark .links a:hover {
+        background: rgba(96, 165, 250, 0.15);
+    }
+
+.theme-dark .attempts {
+    color: #94a3b8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .lock-page h2 {
+        font-size: 2rem;
+        flex-direction: column;
+    }
+
+    .pin-input {
+        font-size: 1.2rem;
+        letter-spacing: 5px;
+    }
+
+    .btn-primary {
+        width: 100%;
+        max-width: 280px;
+    }
+}

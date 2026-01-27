@@ -1,0 +1,49 @@
+﻿@page "/lock"
+@using DayNote.Components.Services
+@using Microsoft.AspNetCore.Components.Routing
+@inject LockService LockService
+@inject NavigationManager Nav
+
+
+<div class="lock-page">
+    <h2>🔒 Locked</h2>
+    <p>Enter your PIN to unlock.</p>
+
+    <input type="password"
+           class="pin-input"
+           placeholder="Enter PIN"
+           @bind="Pin"
+           maxlength="12" />
+
+    <button class="btn-primary" @onclick="Unlock">
+        Unlock
+    </button>
+
+    @if (!string.IsNullOrWhiteSpace(Error))
+    {
+        <div class="error">@Error</div>
+    }
+
+    <div class="links">
+        <NavLink href="/set-pin">Set / Change PIN</NavLink>
+    </div>
+</div>
+
+@code {
+    private string Pin = "";
+    private string? Error;
+
+    private async Task Unlock()
+    {
+        var ok = await LockService.TryUnlockAsync(Pin);
+
+        if (!ok)
+        {
+            Error = "Wrong PIN";
+            return;
+        }
+
+        //After unlock → go home
+        Nav.NavigateTo("/", replace: true);
+    }
+}

@@ -1,0 +1,104 @@
+﻿
+body {
+    outline: 6px solid red !important;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    transition: background 0.25s, color 0.25s;
+    background: transparent; /* app-root handles background */
+    color: inherit;
+}
+
+.status-bar-safe-area {
+    display: none;
+}
+
+/* app wrapper */
+.app-root {
+    min-height: 100vh;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+    /* Light theme */
+    .app-root.theme-light {
+        background: #f7f8fb;
+        color: #1f2937;
+    }
+
+    /* Dark theme */
+    .app-root.theme-dark {
+        background: #0f172a;
+        color: #e5e7eb;
+    }
+
+    /* Cards / sections */
+    .app-root.theme-light .form-card,
+    .app-root.theme-light .entry-card,
+    .app-root.theme-light .card,
+    .app-root.theme-light .stat-card,
+    .app-root.theme-light .today-status,
+    .app-root.theme-light .header {
+        background: #ffffff;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+    }
+
+    .app-root.theme-dark .form-card,
+    .app-root.theme-dark .entry-card,
+    .app-root.theme-dark .card,
+    .app-root.theme-dark .stat-card,
+    .app-root.theme-dark .today-status,
+    .app-root.theme-dark .header {
+        background: #111827;
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+/* Header row + theme button */
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.theme-btn {
+    border: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 18px;
+    background: rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.app-root.theme-dark .theme-btn {
+    background: rgba(255,255,255,0.08);
+}
+
+.theme-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Buttons */
+.app-root.theme-light .save-btn,
+.app-root.theme-light .add-button {
+    background: #2563eb;
+    color: white;
+}
+
+.app-root.theme-dark .save-btn,
+.app-root.theme-dark .add-button {
+    background: #60a5fa;
+    color: #0b1220;
+}
+#blazor-error-ui {
+    display: none;
+}
+
+

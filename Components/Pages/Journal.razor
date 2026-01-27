@@ -1,0 +1,334 @@
+﻿@page "/journal"
+@using DayNote.Components.Models
+@using DayNote.Components.Services
+@inject IJSRuntime JS
+@inject JournalService JournalService
+@inject NavigationManager Nav
+
+<div class="new-entry-container">
+
+    <h1 class="page-title">
+        @(IsEdit ? "Edit Journal Entry" : "New Journal Entry")
+    </h1>
+
+    <div class="form-card">
+
+        <!-- Date & Time -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date"
+                       value="@EntryDateStr"
+                       @onchange="OnDateChanged" />
+            </div>
+
+            <div class="form-group">
+                <label>Time</label>
+                <input type="time"
+                       value="@EntryTimeStr"
+                       @onchange="OnTimeChanged" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" @bind="Title" placeholder="Give your entry a title..." />
+        </div>
+
+        <!-- Quill Content -->
+        <div class="form-group">
+            <label>Content <span class="required">*</span></label>
+            <div id="editor" class="quill-box"></div>
+
+            @if (!string.IsNullOrWhiteSpace(Message))
+            {
+                <p class="form-message">@Message</p>
+            }
+        </div>
+
+        @if (IsEdit)
+        {
+            <div class="preview-box">
+                <h4>Preview (Saved Content)</h4>
+                <div class="preview-content">
+                    @((MarkupString)Content)
+                </div>
+            </div>
+        }
+
+        <!-- Mood -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Primary Mood <span class="required">*</span></label>
+                <select @bind="PrimaryMood">
+                    <option value="">Select mood</option>
+
+                    <optgroup label="Positive">
+                        <option>Happy</option>
+                        <option>Excited</option>
+                        <option>Relaxed</option>
+                        <option>Grateful</option>
+                        <option>Confident</option>
+                    </optgroup>
+
+                    <optgroup label="Neutral">
+                        <option>Calm</option>
+                        <option>Thoughtful</option>
+                        <option>Curious</option>
+                        <option>Nostalgic</option>
+                        <option>Bored</option>
+                    </optgroup>
+
+                    <optgroup label="Negative">
+                        <option>Sad</option>
+                        <option>Angry</option>
+                        <option>Stressed</option>
+                        <option>Lonely</option>
+                        <option>Anxious</option>
+                    </optgroup>
+                </select>
+
+                <!-- ✅ NEW: Mood category preview -->
+                @if (!string.IsNullOrWhiteSpace(PrimaryMood))
+                {
+                    <small class="mood-category-preview">
+                        Category: <strong>@GetMoodCategory(PrimaryMood)</strong>
+                    </small>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Secondary Mood (optional)</label>
+                <select @bind="SecondaryMood1">
+                    <option value="">None</option>
+                    @foreach (var m in AllMoods)
+                    {
+                        <option>@m</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Secondary Mood (optional)</label>
+                <select @bind="SecondaryMood2">
+                    <option value="">None</option>
+                    @foreach (var m in AllMoods)
+                    {
+                        <option>@m</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+            <label>Tags (optional)</label>
+
+            <div class="quick-tags">
+                @foreach (var t in PrebuiltTags)
+                {
+                    <button type="button" class="quick-tag" @onclick="() => AddTag(t)">
+                        + @t
+                    </button>
+                }
+            </div>
+
+            <input type="text"
+                   @bind="Tags"
+                   class="tag-input"
+                   placeholder="Work, Career, Health, Reflection..." />
+
+            @if (!string.IsNullOrWhiteSpace(TagMessage))
+            {
+                <small class="tag-msg">@TagMessage</small>
+            }
+        </div>
+
+        <button class="save-btn" @onclick="SaveEntry">
+            Save Entry
+        </button>
+
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")]
+    public int? Id { get; set; }
+
+    private bool IsEdit => Id.HasValue;
+
+    private string Title = "";
+    private string Content = "";
+    private string PrimaryMood = "";
+    private string SecondaryMood1 = "";
+    private string SecondaryMood2 = "";
+    private string Tags = "";
+    private string Message = "";
+    private string TagMessage = "";
+
+    private string EntryDateStr = DateTime.Today.ToString("yyyy-MM-dd");
+    private string EntryTimeStr = DateTime.Now.ToString("HH:mm");
+
+    private JournalEntry? ExistingEntry;
+
+    private bool _quillReady = false;
+    private bool _htmlLoadedIntoQuill = false;
+
+    // ✅ Full mood list (rubric compliant)
+    private readonly List<string> AllMoods = new()
+{
+        "Happy","Excited","Relaxed","Grateful","Confident",
+        "Calm","Thoughtful","Curious","Nostalgic","Bored",
+        "Sad","Angry","Stressed","Lonely","Anxious"
+    };
+
+    private readonly List<string> PrebuiltTags = new()
+{
+        "Work","Career","Studies","Family","Friends","Relationships",
+        "Health","Fitness","Personal Growth","Self-care","Hobbies",
+        "Travel","Nature","Finance","Spirituality","Reflection"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsEdit) return;
+
+        ExistingEntry = await JournalService.GetByIdAsync(Id!.Value);
+        if (ExistingEntry == null)
+        {
+            Message = "Entry not found.";
+            return;
+        }
+
+        Title = ExistingEntry.Title ?? "";
+        Content = ExistingEntry.Content ?? "";
+        PrimaryMood = ExistingEntry.PrimaryMood ?? "";
+        SecondaryMood1 = ExistingEntry.SecondaryMood1 ?? "";
+        SecondaryMood2 = ExistingEntry.SecondaryMood2 ?? "";
+        Tags = ExistingEntry.Tags ?? "";
+
+        EntryDateStr = ExistingEntry.EntryDate.ToString("yyyy-MM-dd");
+        EntryTimeStr = ExistingEntry.EntryDate.ToString("HH:mm");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("quillInterop.init", "editor");
+            _quillReady = true;
+        }
+
+        if (_quillReady && IsEdit && !_htmlLoadedIntoQuill && !string.IsNullOrWhiteSpace(Content))
+        {
+            await JS.InvokeVoidAsync("quillInterop.setHtml", "editor", Content);
+            _htmlLoadedIntoQuill = true;
+        }
+    }
+
+    private void OnDateChanged(ChangeEventArgs e) => EntryDateStr = e.Value?.ToString() ?? "";
+    private void OnTimeChanged(ChangeEventArgs e) => EntryTimeStr = e.Value?.ToString() ?? "";
+
+    private async Task SaveEntry()
+    {
+        Message = "";
+
+        if (!_quillReady)
+        {
+            Message = "Editor not ready.";
+            return;
+        }
+
+        Content = await JS.InvokeAsync<string>("quillInterop.getHtml", "editor");
+
+        if (string.IsNullOrWhiteSpace(Content) ||
+            Content.Replace(" ", "").Equals("<p><br></p>", StringComparison.OrdinalIgnoreCase))
+        {
+            Message = "Content is required.";
+            return;
+        }
+
+        // ✅ REQUIRED primary mood validation
+        if (string.IsNullOrWhiteSpace(PrimaryMood))
+        {
+            Message = "Primary mood is required.";
+            return;
+        }
+
+        if (!DateTime.TryParse(EntryDateStr, out var date))
+            date = DateTime.Today;
+
+        var finalDate = date;
+        if (TimeSpan.TryParse(EntryTimeStr, out var time))
+            finalDate = date.Date.Add(time);
+
+        var excludeId = IsEdit ? ExistingEntry?.Id : null;
+        if (await JournalService.HasEntryForDayAsync(finalDate, excludeId))
+        {
+            Message = "You already have a journal entry for this day.";
+            return;
+        }
+
+        if (IsEdit && ExistingEntry != null)
+        {
+            ExistingEntry.Title = Title;
+            ExistingEntry.Content = Content;
+            ExistingEntry.PrimaryMood = PrimaryMood;
+            ExistingEntry.SecondaryMood1 = SecondaryMood1;
+            ExistingEntry.SecondaryMood2 = SecondaryMood2;
+            ExistingEntry.Tags = Tags;
+            ExistingEntry.EntryDate = finalDate;
+            ExistingEntry.EntryDay = finalDate.ToString("yyyy-MM-dd");
+            ExistingEntry.UpdatedAt = DateTime.Now;
+
+            await JournalService.UpdateAsync(ExistingEntry);
+        }
+        else
+        {
+            await JournalService.AddAsync(new JournalEntry
+            {
+                Title = Title,
+                Content = Content,
+                PrimaryMood = PrimaryMood,
+                SecondaryMood1 = SecondaryMood1,
+                SecondaryMood2 = SecondaryMood2,
+                Tags = Tags,
+                EntryDate = finalDate,
+                EntryDay = finalDate.ToString("yyyy-MM-dd"),
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            });
+        }
+
+        Nav.NavigateTo("/entries");
+    }
+
+    private string GetMoodCategory(string mood)
+    {
+        var positive = new[] { "Happy", "Excited", "Relaxed", "Grateful", "Confident" };
+        var neutral = new[] { "Calm", "Thoughtful", "Curious", "Nostalgic", "Bored" };
+        var negative = new[] { "Sad", "Angry", "Stressed", "Lonely", "Anxious" };
+
+        if (positive.Contains(mood)) return "Positive";
+        if (neutral.Contains(mood)) return "Neutral";
+        if (negative.Contains(mood)) return "Negative";
+        return "Neutral";
+    }
+
+    private void AddTag(string tag)
+    {
+        var list = SplitTags(Tags);
+        if (!list.Contains(tag, StringComparer.OrdinalIgnoreCase))
+            list.Add(tag);
+
+        Tags = string.Join(", ", list);
+    }
+
+    private static List<string> SplitTags(string? tags) =>
+        string.IsNullOrWhiteSpace(tags)
+            ? new()
+            : tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                  .Select(t => t.Trim())
+                  .Where(t => t.Length > 0)
+                  .ToList();
+}
