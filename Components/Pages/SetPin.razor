@@ -4,39 +4,33 @@
 @inject NavigationManager Nav
 
 <div class="pin-page">
-    <h2>🔑 Set / Change PIN</h2>
+    <div class="pin-card">
 
-    <input type="password"
-           class="pin-input"
-           placeholder="New PIN (min 4)"
-           @bind="NewPin" />
+        <h2>🔑 Set / Change PIN</h2>
 
-    <input type="password"
-           class="pin-input"
-           placeholder="Confirm PIN"
-           @bind="ConfirmPin" />
+        <input type="password" class="pin-input" placeholder="New PIN (min 4)" @bind="NewPin" />
+        <input type="password" class="pin-input" placeholder="Confirm PIN" @bind="ConfirmPin" />
 
-    <button class="btn-success" @onclick="SavePin">
-        Save PIN
-    </button>
+        <button class="btn-success" @onclick="SavePin">Save PIN</button>
 
-    @if (LockService.PinEnabled)
-    {
-        <button class="btn-danger" @onclick="DisablePin">
-            Disable PIN
-        </button>
-    }
+        @if (LockService.PinEnabled)
+        {
+            <button class="btn-danger" @onclick="DisablePin">Disable PIN</button>
+        }
 
-    @if (!string.IsNullOrWhiteSpace(Message))
-    {
-        <div class="msg">@Message</div>
-    }
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <div class="msg">@Message</div>
+        }
 
-    @if (!string.IsNullOrWhiteSpace(Error))
-    {
-        <div class="error">@Error</div>
-    }
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <div class="error">@Error</div>
+        }
+
+    </div>
 </div>
+
 
 @code {
     private string NewPin = "";

@@ -1,109 +1,114 @@
 ﻿/* =========================
-   PIN PAGE (LIGHT)
+   PAGE
 ========================= */
 .pin-page {
+    min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #f5f7fa, #e4e9f2);
+    padding: 2rem;
 }
 
-    .pin-page h2 {
-        font-size: 2rem;
-        margin-bottom: 30px;
-        color: #333;
+/* =========================
+   CARD
+========================= */
+.pin-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+    text-align: center;
+}
+
+    /* =========================
+   TITLE
+========================= */
+    .pin-card h2 {
+        font-size: 1.9rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #1f2937;
     }
 
+/* =========================
+   INPUTS
+========================= */
 .pin-input {
-    width: 250px;
-    padding: 12px 15px;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #d1d5db;
     font-size: 1rem;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    transition: border-color 0.3s, background-color 0.3s;
-    background: #ffffff;
-    color: #333;
 }
 
     .pin-input:focus {
         outline: none;
-        border-color: #4a90e2;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
     }
 
-/* Buttons */
-.btn-success {
-    padding: 12px 30px;
+/* =========================
+   BUTTONS (FIXED)
+========================= */
+.btn-success,
+.btn-danger {
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 12px;
     font-size: 1rem;
-    background-color: #28a745;
-    color: white;
+    font-weight: 600;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    transition: background-color 0.3s, transform 0.15s;
+    margin-top: 0.75rem;
 }
 
-    .btn-success:hover {
-        background-color: #218838;
-        transform: translateY(-1px);
-    }
+.btn-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+}
 
 .btn-danger {
-    padding: 12px 30px;
-    font-size: 1rem;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s, transform 0.15s;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
 }
 
-    .btn-danger:hover {
-        background-color: #c82333;
-        transform: translateY(-1px);
-    }
-
-/* Messages */
+/* =========================
+   MESSAGES
+========================= */
 .msg {
-    margin-top: 20px;
-    padding: 10px 15px;
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 6px;
-    max-width: 300px;
-    text-align: center;
+    margin-top: 1rem;
+    background: #ecfdf5;
+    color: #065f46;
+    padding: 0.75rem;
+    border-radius: 10px;
 }
 
 .error {
-    margin-top: 20px;
-    padding: 10px 15px;
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-    border-radius: 6px;
-    max-width: 300px;
-    text-align: center;
+    margin-top: 1rem;
+    background: #fef2f2;
+    color: #991b1b;
+    padding: 0.75rem;
+    border-radius: 10px;
 }
 
-/* =========================================================
-   DARK THEME (ThemeService → .theme-dark)
-========================================================= */
-
+/* =========================
+   DARK MODE
+========================= */
 .theme-dark .pin-page {
-    background-color: #020617;
+    background: linear-gradient(135deg, #020617, #0f172a);
 }
 
-    .theme-dark .pin-page h2 {
-        color: #e5e7eb;
+.theme-dark .pin-card {
+    background: #0b1220;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+    .theme-dark .pin-card h2 {
+        color: #f9fafb;
     }
 
 .theme-dark .pin-input {
@@ -112,40 +117,12 @@
     color: #e5e7eb;
 }
 
-    .theme-dark .pin-input::placeholder {
-        color: #94a3b8;
-    }
-
-    .theme-dark .pin-input:focus {
-        border-color: #60a5fa;
-    }
-
-/* Buttons stay colored but glow slightly */
-.theme-dark .btn-success {
-    background-color: #22c55e;
-}
-
-    .theme-dark .btn-success:hover {
-        background-color: #16a34a;
-    }
-
-.theme-dark .btn-danger {
-    background-color: #ef4444;
-}
-
-    .theme-dark .btn-danger:hover {
-        background-color: #dc2626;
-    }
-
-/* Messages */
 .theme-dark .msg {
-    background-color: rgba(34, 197, 94, 0.15);
+    background: rgba(34, 197, 94, 0.15);
     color: #86efac;
-    border-color: rgba(34, 197, 94, 0.3);
 }
 
 .theme-dark .error {
-    background-color: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.15);
     color: #fca5a5;
-    border-color: rgba(239, 68, 68, 0.3);
 }
