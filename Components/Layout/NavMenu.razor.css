@@ -197,6 +197,17 @@
     color: white;
     border: none;
 }
+.dialog-box.warning {
+    border-left: 5px solid #f59e0b;
+}
+
+    .dialog-box.warning h3 {
+        color: #92400e;
+    }
+
+.theme-dark .dialog-box.warning {
+    border-left-color: #fbbf24;
+}
 
 /* =========================
    MOBILE SIDEBAR SLIDE

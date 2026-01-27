@@ -80,17 +80,45 @@
         </div>
     </div>
 }
+@if (ShowPinRequiredMessage)
+{
+    <div class="dialog-backdrop" @onclick="ClosePinMessage">
+        <div class="dialog-box warning" @onclick:stopPropagation="true">
+            <h3>PIN Required</h3>
+            <p>Please set a PIN before logging out.</p>
+
+            <div class="dialog-actions">
+                <button class="btn-confirm" @onclick="ClosePinMessage">OK</button>
+            </div>
+        </div>
+    </div>
+}
+
 
 
 @code {
     private bool settingsOpen = false;
+
     private void ToggleSettings() => settingsOpen = !settingsOpen;
 
     private bool ShowLogoutDialog = false;
 
+    private bool ShowPinRequiredMessage = false;
+
+
     private void AskLogout()
     {
+        if (!LockService.PinEnabled)
+        {
+            ShowPinRequiredMessage = true;
+            return;
+        }
+
         ShowLogoutDialog = true;
+    }
+    private void ClosePinMessage()
+    {
+        ShowPinRequiredMessage = false;
     }
 
     private void CancelLogout()
