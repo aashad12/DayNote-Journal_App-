@@ -1,7 +1,7 @@
-﻿
-body {
-    outline: 6px solid red !important;
+﻿* {
+    border-color: transparent !important;
 }
+
 
 html, body {
     height: 100%;

@@ -1,10 +1,11 @@
-﻿/* Export Page */
+﻿/* ===== Export Page Layout ===== */
 .export-shell {
     max-width: 980px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
 }
 
+/* ===== Header ===== */
 .export-header {
     margin-bottom: 1.25rem;
 }
@@ -21,6 +22,7 @@
     color: #6b7280;
 }
 
+/* ===== Card ===== */
 .export-card {
     background: #ffffff;
     border: 1px solid #e5e7eb;
@@ -29,6 +31,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
+/* ===== Sections ===== */
 .export-section {
     padding: 1rem 0;
 }
@@ -38,12 +41,13 @@
     }
 
 .section-title {
-    margin: 0 0 0.8rem 0;
+    margin-bottom: 0.8rem;
     font-size: 1.05rem;
     font-weight: 700;
     color: #111827;
 }
 
+/* ===== Quick Date Chips ===== */
 .quick-ranges {
     display: flex;
     flex-wrap: wrap;
@@ -65,9 +69,10 @@
         border-color: #c7d2fe;
     }
 
+/* ===== Date Inputs ===== */
 .export-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
@@ -86,31 +91,28 @@
     padding: 0.65rem 0.75rem;
     border-radius: 10px;
     border: 1px solid #d1d5db;
-    outline: none;
     background: #fff;
 }
 
     .date-input:focus {
         border-color: #93c5fd;
         box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+        outline: none;
     }
 
+/* ===== Buttons ===== */
 .actions {
     display: flex;
     gap: 0.75rem;
-    align-items: center;
     margin-top: 0.5rem;
 }
 
 .export-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 1rem;
-    border-radius: 12px;
-    border: none;
     background: #2563eb;
     color: #fff;
+    border: none;
+    padding: 0.7rem 1rem;
+    border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
 }
@@ -121,30 +123,21 @@
     }
 
 .secondary-btn {
+    background: #fff;
+    border: 1px solid #e5e7eb;
     padding: 0.7rem 1rem;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
     font-weight: 700;
     cursor: pointer;
 }
 
-    .secondary-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
+/* ===== Alerts ===== */
 .alert {
     margin-top: 1rem;
     padding: 0.8rem 0.9rem;
     border-radius: 12px;
     display: flex;
-    align-items: center;
     gap: 0.6rem;
-}
-
-.alert-icon {
-    font-size: 1.1rem;
 }
 
 .alert-success {
@@ -159,6 +152,7 @@
     color: #991b1b;
 }
 
+/* ===== Summary ===== */
 .summary {
     margin-top: 1rem;
     padding: 0.9rem;
@@ -170,7 +164,6 @@
 .summary-row {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
     padding: 0.35rem 0;
 }
 
@@ -184,45 +177,7 @@
     color: #111827;
 }
 
-.summary-path {
-    max-width: 520px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #111827;
-    font-weight: 700;
-}
-
-.hint {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eef2f7;
-    display: flex;
-    gap: 0.6rem;
-    color: #6b7280;
-}
-
-.hint-icon {
-    font-size: 1.1rem;
-}
-
-/* Spinner */
-.spinner {
-    width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    border: 2px solid rgba(255,255,255,0.45);
-    border-top-color: #ffffff;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 700px) {
     .export-grid {
         grid-template-columns: 1fr;
@@ -231,87 +186,57 @@
     .export-shell {
         padding: 1.25rem 1rem;
     }
-
-    .summary-path {
-        max-width: 240px;
-    }
 }
 
-/* Dark mode (works if you use body.dark OR .dark on html/body) */
-body.dark .export-title,
-.dark .export-title {
+/* ===== Dark Theme ===== */
+.theme-dark .export-title {
     color: #f9fafb;
 }
 
-body.dark .export-subtitle,
-.dark .export-subtitle {
+.theme-dark .export-subtitle {
     color: #9ca3af;
 }
 
-body.dark .export-card,
-.dark .export-card {
+.theme-dark .export-card {
     background: #0b1220;
     border-color: rgba(255,255,255,0.08);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
 }
 
-body.dark .section-title,
-.dark .section-title {
+.theme-dark .section-title {
     color: #e5e7eb;
 }
 
-body.dark .chip,
-.dark .chip {
+.theme-dark .chip {
     background: rgba(255,255,255,0.06);
     border-color: rgba(255,255,255,0.10);
     color: #e5e7eb;
 }
 
-    body.dark .chip:hover,
-    .dark .chip:hover {
-        background: rgba(37, 99, 235, 0.16);
-        border-color: rgba(37, 99, 235, 0.35);
+    .theme-dark .chip:hover {
+        background: rgba(37,99,235,0.18);
     }
 
-body.dark .field-label,
-.dark .field-label {
-    color: #cbd5e1;
-}
-
-body.dark .date-input,
-.dark .date-input {
-    background: rgba(255,255,255,0.04);
+.theme-dark .date-input {
+    background: rgba(255,255,255,0.05);
     border-color: rgba(255,255,255,0.12);
     color: #e5e7eb;
 }
 
-body.dark .secondary-btn,
-.dark .secondary-btn {
-    background: rgba(255,255,255,0.04);
+.theme-dark .secondary-btn {
+    background: rgba(255,255,255,0.05);
     border-color: rgba(255,255,255,0.12);
     color: #e5e7eb;
 }
 
-body.dark .summary,
-.dark .summary {
+.theme-dark .summary {
     background: rgba(255,255,255,0.04);
     border-color: rgba(255,255,255,0.10);
 }
 
-body.dark .summary-label,
-.dark .summary-label {
+.theme-dark .summary-label {
     color: #9ca3af;
 }
 
-body.dark .summary-value,
-body.dark .summary-path,
-.dark .summary-value,
-.dark .summary-path {
+.theme-dark .summary-value {
     color: #e5e7eb;
-}
-
-body.dark .hint,
-.dark .hint {
-    border-top-color: rgba(255,255,255,0.08);
-    color: #9ca3af;
 }
