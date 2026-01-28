@@ -4,17 +4,20 @@ using SQLite;
 
 namespace DayNote.Services
 {
+    // Repository responsible for managing PIN-based security
     public class PinRepository
     {
         private readonly JournalDatabase _db;
 
+        // Inject database dependency
         public PinRepository(JournalDatabase db)
         {
             _db = db;
         }
-
+        // Shortcut to SQLite async connection
         private SQLiteAsyncConnection Conn => _db.Connection;
 
+        // Checks whether a PIN is already set
         public async Task<bool> HasPinAsync()
         {
             var row = await Conn.Table<PinSetting>()
@@ -26,6 +29,7 @@ namespace DayNote.Services
                    !string.IsNullOrWhiteSpace(row.PinSalt);
         }
 
+        // Sets or updates the PIN (stored securely as hash + salt)
         public async Task SetPinAsync(string pin)
         {
             var (hash, salt) = PinCrypto.HashPin(pin);
@@ -39,7 +43,7 @@ namespace DayNote.Services
 
             await Conn.InsertOrReplaceAsync(row);
         }
-
+        // Verifies user-entered PIN against stored hash
         public async Task<bool> VerifyAsync(string pin)
         {
             var row = await Conn.Table<PinSetting>()
@@ -51,6 +55,7 @@ namespace DayNote.Services
             return PinCrypto.VerifyPin(pin, row.PinHash, row.PinSalt);
         }
 
+        // Disables PIN protection by removing stored credentials
         public async Task DisableAsync()
         {
             await Conn.DeleteAsync<PinSetting>(1);

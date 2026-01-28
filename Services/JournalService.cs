@@ -9,19 +9,23 @@ using DayNote.Models;
 
 namespace DayNote.Services
 {
+    // Service responsible for all journal entry operations (CRUD, search, pagination)
     public class JournalService
     {
         private readonly SQLiteAsyncConnection connection;
+        // Inject database connection
         public JournalService(JournalDatabase database)
         {
             connection = database.Connection;
         }
 
+        // Returns all journal entries
         public Task<List<JournalEntry>> GetAllAsync()
         {
             return connection.Table<JournalEntry>().ToListAsync();
         }
 
+        // Returns a journal entry by its ID
         public Task<JournalEntry> GetByIdAsync(int id)
         {
             return connection.Table<JournalEntry>()
@@ -29,6 +33,7 @@ namespace DayNote.Services
                              .FirstOrDefaultAsync();
         }
 
+        // Adds a new journal entry (enforces one entry per day rule)
         public async Task AddAsync(JournalEntry entry)
         {
           
@@ -40,6 +45,7 @@ namespace DayNote.Services
 
             await connection.InsertAsync(entry);
         }
+        // Returns paginated journal entries for timeline view
         public async Task<List<JournalEntry>> GetEntriesPageAsync(int page, int pageSize)
         {
             if (page < 1) page = 1;
@@ -53,6 +59,7 @@ namespace DayNote.Services
             );
         }
 
+        // Returns total number of journal entries
         public Task<int> GetTotalCountAsync()
         {
             return connection.ExecuteScalarAsync<int>(
@@ -60,24 +67,25 @@ namespace DayNote.Services
             );
         }
 
-
+        // Updates an existing journal entry (prevents duplicate entry per day)
         public async Task UpdateAsync(JournalEntry entry)
         {
             entry.EntryDay = entry.EntryDate.ToString("yyyy-MM-dd");
 
-            // ✅ block duplicate (excluding current entry)
+            // block duplicate (excluding current entry)
             if (await HasEntryForDayAsync(entry.EntryDate, entry.Id))
                 throw new Exception("Another entry already exists for this day.");
 
             await connection.UpdateAsync(entry);
         }
 
-
+        // Deletes a journal entry
         public Task DeleteAsync(JournalEntry entry)
         {
             return connection.DeleteAsync(entry);
         }
 
+        // Searches journal entries by content/title and mood
         public async Task<List<JournalEntry>> SearchAsync(string? searchText, string? mood)
         {
             searchText = (searchText ?? "").Trim();
@@ -113,7 +121,7 @@ namespace DayNote.Services
 
 
 
-
+        // Checks whether a journal entry already exists for a given day
         public async Task<bool> HasEntryForDayAsync(DateTime day, int? excludeId = null)
         {
             var key = day.ToString("yyyy-MM-dd");
@@ -128,10 +136,13 @@ namespace DayNote.Services
             return exists != null;
         }
 
+        // Returns total number of journal entries
         public Task<int> GetEntryCountAsync()
         {
             return connection.Table<JournalEntry>().CountAsync();
         }
+
+        // Returns all distinct dates that contain journal entries (calendar view)
         public async Task<List<DateTime>> GetDistinctEntryDatesAsync()
         {
             var entries = await connection.Table<JournalEntry>().ToListAsync();
@@ -142,7 +153,7 @@ namespace DayNote.Services
                 .ToList();
         }
 
-
+        // Returns count of distinct moods used across all entries
         public Task<int> GetDistinctMoodCountAsync() =>
               connection.ExecuteScalarAsync<int>(
                   @"SELECT COUNT(DISTINCT Mood)
@@ -154,11 +165,14 @@ namespace DayNote.Services
                   SELECT SecondaryMood2 FROM JournalEntry WHERE SecondaryMood2 IS NOT NULL
               )");
 
+        // Returns the most recent journal entry date
         public Task<DateTime?> GetLatestEntryDateAsync()
         {
             return connection.ExecuteScalarAsync<DateTime?>(
                 "SELECT MAX(EntryDate) FROM JournalEntry");
         }
+
+        // Returns the oldest journal entry date
 
         public Task<DateTime?> GetOldestEntryDateAsync()
         {
@@ -166,6 +180,7 @@ namespace DayNote.Services
                 "SELECT MIN(EntryDate) FROM JournalEntry");
         }
 
+        // Returns journal entries within a selected date range
         public Task<List<JournalEntry>> GetByDateRangeAsync(DateTime from, DateTime to)
         {
             var toEnd = to.Date.AddDays(1).AddTicks(-1);

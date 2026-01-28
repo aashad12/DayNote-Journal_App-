@@ -1,12 +1,15 @@
-﻿using DayNote.Models;
+﻿using DayNote.Components.Pages;
+using DayNote.Models;
 
 namespace DayNote.Services
 {
+    // Service responsible for analytics calculations (moods, tags, word trends, streaks, missed days)
     public partial class FeatureService
     {
 
         private readonly JournalService _journalService;
 
+        // Inject JournalService to fetch entries for streak/missed day calculations
         public FeatureService(JournalService journalService)
         {
             _journalService = journalService;
@@ -21,7 +24,7 @@ namespace DayNote.Services
                 .ToDictionary(g => g.Key, g => g.Count());
         }
 
-        // Tag counts (top tags)
+        // Counts total occurrences of each tag across all entries (used for top tags)
         public Dictionary<string, int> CalculateTagCounts(List<JournalEntry> entries)
         {
             var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -45,7 +48,7 @@ namespace DayNote.Services
             return dict;
         }
 
-        // Tag breakdown % 
+        // Calculates percentage breakdown of tags(how many entries contain each tag)
         public Dictionary<string, double> CalculateTagBreakdownPercent(List<JournalEntry> entries)
         {
             var result = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
@@ -58,6 +61,7 @@ namespace DayNote.Services
             {
                 if (string.IsNullOrWhiteSpace(entry.Tags)) continue;
 
+                // Unique tags per entry to avoid counting the same tag twice in one entry
                 var uniqueTags = entry.Tags
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim())
@@ -81,7 +85,7 @@ namespace DayNote.Services
             return result;
         }
 
-        
+        // Calculates total word counts per day for trend charting
         public List<WordTrendPoint> CalculateWordTrend(List<JournalEntry> entries)
         {
            
@@ -96,11 +100,13 @@ namespace DayNote.Services
                 .ToList();
         }
 
+        // Helper method: counts words in journal content
         private int CountWords(string? text)
         {
             if (string.IsNullOrWhiteSpace(text)) return 0;
             return text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
         }
+        // Calculates current consecutive-day streak (based on existing entry dates)
         public async Task<int> CalculateCurrentStreakAsync()
         {
             var entries = await _journalService.GetAllAsync();
@@ -139,7 +145,7 @@ namespace DayNote.Services
             return streak;
         }
 
-
+        // Calculates the longest streak achieved historically
         public async Task<int> CalculateLongestStreakAsync()
         {
             var entries = await _journalService.GetAllAsync();
@@ -188,6 +194,7 @@ namespace DayNote.Services
 
             return missed;
         }
+        // Returns a list of missed dates in the last 30 days
         public async Task<List<DateTime>> GetMissedDatesLast30Async()
         {
             var entries = await _journalService.GetAllAsync();
