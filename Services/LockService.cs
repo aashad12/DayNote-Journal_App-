@@ -17,7 +17,7 @@ public class LockService
 
     public async Task InitializeAsync()
     {
-        if (_initialized) return;   // ✅ prevents re-locking
+        if (_initialized) return;   // prevents re-locking
         _initialized = true;
 
         PinEnabled = await _pinRepo.HasPinAsync();

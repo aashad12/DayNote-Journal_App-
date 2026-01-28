@@ -14,6 +14,7 @@ namespace DayNote
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            // Register services
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddSingleton<JournalDatabase>();
             builder.Services.AddSingleton<JournalService>();

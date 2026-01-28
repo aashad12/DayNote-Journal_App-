@@ -11,24 +11,24 @@ namespace DayNote.Services
         {
             _journalService = journalService;
         }
-        // ✅ Mood Distribution (by primary mood)
+        // Mood Distribution (by primary mood)
         public Dictionary<string, int> CalculateMoodDistribution(List<JournalEntry> entries)
         {
-            // IMPORTANT: Adjust "PrimaryMood" property name if yours is different
+            //  Adjust "PrimaryMood" property name 
             return entries
                 .Where(e => !string.IsNullOrWhiteSpace(e.PrimaryMood))
                 .GroupBy(e => e.PrimaryMood.Trim())
                 .ToDictionary(g => g.Key, g => g.Count());
         }
 
-        // ✅ Tag counts (top tags)
+        // Tag counts (top tags)
         public Dictionary<string, int> CalculateTagCounts(List<JournalEntry> entries)
         {
             var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var entry in entries)
             {
-                // IMPORTANT: Adjust "Tags" property name if yours is different
+                //  Adjust "Tags" property 
                 if (string.IsNullOrWhiteSpace(entry.Tags)) continue;
 
                 var tags = entry.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -45,7 +45,7 @@ namespace DayNote.Services
             return dict;
         }
 
-        // ✅ Tag breakdown % (percentage of entries containing each tag)
+        // Tag breakdown % 
         public Dictionary<string, double> CalculateTagBreakdownPercent(List<JournalEntry> entries)
         {
             var result = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
@@ -168,7 +168,7 @@ namespace DayNote.Services
             return longest;
         }
 
-        // ✅ Missed dates list (for last 30 days)
+        // Missed dates list (for last 30 days)
         // This uses your existing DB logic; if you already have something similar, keep one.
         public async Task<int> GetMissedDaysLast30Async()
         {

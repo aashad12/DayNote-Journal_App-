@@ -88,7 +88,7 @@
                     </optgroup>
                 </select>
 
-                <!-- ✅ NEW: Mood category preview -->
+                <!-- Mood category preview -->
                 @if (!string.IsNullOrWhiteSpace(PrimaryMood))
                 {
                     <small class="mood-category-preview">
@@ -174,7 +174,7 @@
     private bool _quillReady = false;
     private bool _htmlLoadedIntoQuill = false;
 
-    // ✅ Full mood list (rubric compliant)
+    // Full mood list (rubric compliant)
     private readonly List<string> AllMoods = new()
 {
         "Happy","Excited","Relaxed","Grateful","Confident",
@@ -248,7 +248,7 @@
             return;
         }
 
-        // ✅ REQUIRED primary mood validation
+        //  primary mood validation
         if (string.IsNullOrWhiteSpace(PrimaryMood))
         {
             Message = "Primary mood is required.";

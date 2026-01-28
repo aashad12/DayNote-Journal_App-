@@ -101,12 +101,12 @@
                                     </span>
                                 </div>
 
-                                <!-- ✅ NEW: Created/Updated timestamps -->
+                                <!-- Created/Updated timestamps -->
                                 <div class="entry-meta">
                                     <span class="meta-pill">Created: @entry.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")</span>
                                     <span class="meta-pill">Updated: @entry.UpdatedAt.ToString("MMM dd, yyyy • hh:mm tt")</span>
 
-                                    <!-- ✅ NEW: Mood Category badge -->
+                                    <!-- Mood Category badge -->
                                     <span class="meta-pill mood-category">@moodCategory</span>
 
                                     @if (isToday)
@@ -129,7 +129,7 @@
                                 }
                             </div>
 
-                            <!-- ✅ NEW: Tags display -->
+                            <!-- Tags display -->
                             @if (!string.IsNullOrWhiteSpace(entry.Tags))
                             {
                                 <div class="tag-section">
@@ -145,7 +145,7 @@
                             </div>
 
                             <div class="entry-actions">
-                                <!-- ✅ OPTIONAL strict rule: only allow edit/delete for today's entry -->
+                                <!--  only allow edit/delete for today's entry -->
                                 @if (!OnlyTodayCRUD || isToday)
                                 {
                                     <a class="edit-btn" href="/journal?id=@entry.Id">Edit</a>
@@ -197,7 +197,7 @@
 
 @code {
 
-    // ✅ Optional: strict rubric mode (true = only today edit/delete)
+    // strict rubric mode 
     private bool OnlyTodayCRUD = false;
 
     private List<JournalEntry> AllEntries = new();
@@ -213,7 +213,7 @@
     private List<string> AllMoods = new();
     private int MoodCount = 0;
 
-    // ✅ NEW: Tags dropdown
+    // Tags dropdown
     private List<string> AllTags = new();
     private int TagCount = 0;
 
@@ -242,7 +242,7 @@
 
         MoodCount = AllMoods.Count;
 
-        // ✅ NEW: Tag dropdown list (from existing entries)
+        //  Tag dropdown list (from existing entries)
         AllTags = AllEntries
             .Where(e => !string.IsNullOrWhiteSpace(e.Tags))
             .SelectMany(e => SplitTags(e.Tags))
@@ -320,7 +320,7 @@
         return Task.CompletedTask;
     }
 
-    // ✅ NEW: Tag changed
+    // Tag changed
     private Task OnTagChanged(ChangeEventArgs e)
     {
         SelectedTag = e.Value?.ToString() ?? "";
@@ -396,7 +396,7 @@
         }
     }
 
-    // ✅ NEW helpers
+    // helpers
 
     private IEnumerable<string> SplitTags(string? tags)
     {

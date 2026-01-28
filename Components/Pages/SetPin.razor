@@ -13,7 +13,7 @@
 
         <button class="btn-success" @onclick="SavePin">Save PIN</button>
 
-        @if (LockService.PinEnabled)
+        @if (LockService.PinEnabled && !LockService.IsLocked)
         {
             <button class="btn-danger" @onclick="DisablePin">Disable PIN</button>
         }
